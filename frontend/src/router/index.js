@@ -1,10 +1,8 @@
-// src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
-
-// 引入页面组件
+﻿import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Home from '../views/Home.vue'
+import { TOKEN_KEY } from '../api/auth'
 
 const routes = [
   {
@@ -27,6 +25,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem(TOKEN_KEY)
+  if ((to.path === '/login' || to.path === '/register') && token) {
+    next('/')
+    return
+  }
+  next()
 })
 
 export default router

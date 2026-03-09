@@ -16,15 +16,32 @@
           <el-input v-model="username" placeholder="请输入用户名" clearable />
         </el-form-item>
 
+        <el-form-item label="邮箱">
+          <el-input v-model="email" placeholder="请输入邮箱" clearable />
+        </el-form-item>
+
         <el-form-item label="密码">
-          <el-input v-model="password" type="password" placeholder="请输入密码" show-password clearable />
+          <el-input
+            v-model="password"
+            type="password"
+            placeholder="请输入密码"
+            show-password
+            clearable
+          />
         </el-form-item>
 
         <el-form-item label="确认密码">
-          <el-input v-model="confirmPassword" type="password" placeholder="请再次输入密码" show-password clearable />
+          <el-input
+            v-model="confirmPassword"
+            type="password"
+            placeholder="请再次输入密码"
+            show-password
+            clearable
+            @keyup.enter="handleRegister"
+          />
         </el-form-item>
 
-        <el-button type="primary" class="full-btn" @click="handleRegister">注册</el-button>
+        <el-button type="primary" class="full-btn" :loading="loading" @click="handleRegister">注册</el-button>
       </el-form>
 
       <div class="auth-footer">
@@ -37,18 +54,21 @@
 
 <script>
 import { ElMessage } from 'element-plus'
+import { register } from '../api/auth'
 
 export default {
   data() {
     return {
       username: '',
+      email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      loading: false
     }
   },
   methods: {
-    handleRegister() {
-      if (!this.username || !this.password || !this.confirmPassword) {
+    async handleRegister() {
+      if (!this.username || !this.email || !this.password || !this.confirmPassword) {
         ElMessage.warning('请填写完整注册信息')
         return
       }
@@ -58,8 +78,21 @@ export default {
         return
       }
 
-      ElMessage.success('注册校验通过，待接入后端接口')
-      console.log('注册信息：', this.username, this.password)
+      this.loading = true
+      try {
+        await register({
+          username: this.username,
+          email: this.email,
+          password: this.password
+        })
+
+        ElMessage.success('注册成功，请登录')
+        this.$router.push('/login')
+      } catch (error) {
+        ElMessage.error(error.message || '注册失败')
+      } finally {
+        this.loading = false
+      }
     }
   }
 }

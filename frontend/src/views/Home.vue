@@ -4,13 +4,31 @@
       <h1>志愿者服务认证系统</h1>
       <p>服务申报、审核认证、链上存证、积分激励的一体化平台</p>
       <div class="hero-actions">
-        <router-link to="/login">
+        <router-link v-if="!isLoggedIn" to="/login">
           <el-button type="primary" size="large">立即登录</el-button>
         </router-link>
-        <router-link to="/register">
+        <router-link v-if="!isLoggedIn" to="/register">
           <el-button plain size="large">注册账号</el-button>
         </router-link>
+        <el-button v-if="isLoggedIn" type="primary" plain size="large" @click="handleLogout">退出登录</el-button>
       </div>
+
+      <el-alert
+        v-if="isLoggedIn && user"
+        class="user-alert"
+        type="success"
+        :closable="false"
+        show-icon
+        :title="`当前登录：${user.username}（${user.email}）`"
+      />
+      <el-alert
+        v-else
+        class="user-alert"
+        type="info"
+        :closable="false"
+        show-icon
+        title="当前未登录，请先注册或登录后体验完整功能"
+      />
     </header>
 
     <section class="cards">
@@ -39,8 +57,44 @@
 </template>
 
 <script>
+import { ElMessage } from 'element-plus'
+import { clearAuth, getCachedUser, getCurrentUser, getToken, saveAuth } from '../api/auth'
+
 export default {
-  name: 'Home'
+  name: 'Home',
+  data() {
+    return {
+      user: getCachedUser(),
+      isLoggedIn: !!getToken()
+    }
+  },
+  async mounted() {
+    const token = getToken()
+    if (!token) {
+      return
+    }
+
+    try {
+      const profile = await getCurrentUser(token)
+      this.user = profile
+      saveAuth({ token, user: profile })
+      this.isLoggedIn = true
+    } catch (error) {
+      clearAuth()
+      this.user = null
+      this.isLoggedIn = false
+      ElMessage.warning(error.message || '登录状态已失效，请重新登录')
+    }
+  },
+  methods: {
+    handleLogout() {
+      clearAuth()
+      this.user = null
+      this.isLoggedIn = false
+      ElMessage.success('已退出登录')
+      this.$router.push('/login')
+    }
+  }
 }
 </script>
 
@@ -80,6 +134,12 @@ export default {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.user-alert {
+  margin: 22px auto 0;
+  max-width: 680px;
+  text-align: left;
 }
 
 .cards {

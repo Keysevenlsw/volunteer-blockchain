@@ -12,15 +12,22 @@
       </template>
 
       <el-form label-position="top" @submit.prevent>
-        <el-form-item label="用户名">
-          <el-input v-model="username" placeholder="请输入用户名" clearable />
+        <el-form-item label="邮箱">
+          <el-input v-model="email" placeholder="请输入邮箱" clearable />
         </el-form-item>
 
         <el-form-item label="密码">
-          <el-input v-model="password" type="password" placeholder="请输入密码" show-password clearable />
+          <el-input
+            v-model="password"
+            type="password"
+            placeholder="请输入密码"
+            show-password
+            clearable
+            @keyup.enter="handleLogin"
+          />
         </el-form-item>
 
-        <el-button type="primary" class="full-btn" @click="handleLogin">登录</el-button>
+        <el-button type="primary" class="full-btn" :loading="loading" @click="handleLogin">登录</el-button>
       </el-form>
 
       <div class="auth-footer">
@@ -33,23 +40,38 @@
 
 <script>
 import { ElMessage } from 'element-plus'
+import { login, saveAuth } from '../api/auth'
 
 export default {
   data() {
     return {
-      username: '',
-      password: ''
+      email: '',
+      password: '',
+      loading: false
     }
   },
   methods: {
-    handleLogin() {
-      if (!this.username || !this.password) {
+    async handleLogin() {
+      if (!this.email || !this.password) {
         ElMessage.warning('请填写完整登录信息')
         return
       }
 
-      ElMessage.success('登录校验通过，待接入后端接口')
-      console.log('登录信息：', this.username, this.password)
+      this.loading = true
+      try {
+        const authData = await login({
+          email: this.email,
+          password: this.password
+        })
+
+        saveAuth(authData)
+        ElMessage.success('登录成功')
+        this.$router.push('/')
+      } catch (error) {
+        ElMessage.error(error.message || '登录失败')
+      } finally {
+        this.loading = false
+      }
     }
   }
 }
