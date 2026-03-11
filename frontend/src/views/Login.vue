@@ -12,6 +12,16 @@
       </template>
 
       <el-form label-position="top" @submit.prevent>
+        <el-form-item label="登录身份">
+          <div class="role-switch">
+            <el-switch
+              v-model="isOrgAdmin"
+              inline-prompt
+              active-text="公益组织"
+              inactive-text="志愿者"
+            />
+          </div>
+        </el-form-item>
         <el-form-item label="邮箱">
           <el-input v-model="email" placeholder="请输入邮箱" clearable />
         </el-form-item>
@@ -40,14 +50,15 @@
 
 <script>
 import { ElMessage } from 'element-plus'
-import { login, saveAuth } from '../api/auth'
+import { clearAuth, login, saveAuth } from '../api/auth'
 
 export default {
   data() {
     return {
       email: '',
       password: '',
-      loading: false
+      loading: false,
+      isOrgAdmin: false
     }
   },
   methods: {
@@ -64,9 +75,20 @@ export default {
           password: this.password
         })
 
+        const expectedRole = this.isOrgAdmin ? 'organization_admin' : 'volunteer'
+        if (authData.user && authData.user.role !== expectedRole) {
+          clearAuth()
+          ElMessage.error('所选登录身份与账号角色不一致')
+          return
+        }
+
         saveAuth(authData)
         ElMessage.success('登录成功')
-        this.$router.push('/')
+        if (authData.user && authData.user.role === 'organization_admin') {
+          this.$router.push('/organization')
+        } else {
+          this.$router.push('/volunteer')
+        }
       } catch (error) {
         ElMessage.error(error.message || '登录失败')
       } finally {
@@ -141,5 +163,10 @@ export default {
 .auth-footer a {
   color: #2f7ef7;
   text-decoration: none;
+}
+
+.role-switch {
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -1,44 +1,39 @@
 package com.gzu.volunteerblockchain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
+@TableName("users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @TableId(value = "user_id", type = IdType.AUTO)
     private Integer userId;
 
-    @Column(name = "username", nullable = false, length = 100)
+    @TableField("username")
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @TableField("password_hash")
     private String passwordHash;
 
-    @Column(name = "email", unique = true, length = 100)
+    @TableField("email")
     private String email;
 
-    @Column(name = "avatar_path", length = 255)
+    @TableField("avatar_path")
     private String avatarPath;
 
-    @Column(name = "organization_id")
+    @TableField("organization_id")
     private Integer organizationId;
 
-    @Column(name = "role", nullable = false, length = 50)
+    @TableField("role")
     private String role;
 
-    @Column(name = "join_date")
+    @TableField("join_date")
     private LocalDateTime joinDate;
 
-    @Column(name = "total_points")
+    @TableField("total_points")
     private Integer totalPoints;
 
     public Integer getUserId() {

@@ -1,32 +1,27 @@
 package com.gzu.volunteerblockchain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "jwt_tokens")
+@TableName("jwt_tokens")
 public class JwtToken {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "token_id")
+    @TableId(value = "token_id", type = IdType.AUTO)
     private Integer tokenId;
 
-    @Column(name = "user_id", nullable = false)
+    @TableField("user_id")
     private Integer userId;
 
-    @Column(name = "token", nullable = false, length = 1024)
+    @TableField("token")
     private String token;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "expires_at", nullable = false)
+    @TableField("expires_at")
     private LocalDateTime expiresAt;
 
     public Integer getTokenId() {

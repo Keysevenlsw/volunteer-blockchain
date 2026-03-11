@@ -1,0 +1,24 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+async function request(path) {
+  const response = await fetch(`${API_BASE_URL}${path}`)
+  let result = null
+  try {
+    result = await response.json()
+  } catch (error) {
+    throw new Error('服务端返回格式错误')
+  }
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.message || '请求失败')
+  }
+  return result.data
+}
+
+export function getPublicInfo() {
+  return request('/api/public/info')
+}
+
+export function getCompletedProjects(limit = 6) {
+  return request(`/api/public/completed-projects?limit=${limit}`)
+}

@@ -19,6 +19,9 @@ public class RegisterRequest {
     @Size(min = 6, max = 50, message = "密码长度需在6到50之间")
     private String password;
 
+    @Size(max = 50, message = "角色长度不能超过50")
+    private String role;
+
     public String getUsername() {
         return username;
     }
@@ -41,5 +44,13 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzu.volunteerblockchain.mapper.ActivityMapper">
+
+  <select id="selectCompletedProjects" resultType="com.gzu.volunteerblockchain.entity.Activity">
+    SELECT activity_id, activity_name, description, start_date, end_date, publish_date, location, image_path, status
+    FROM activities
+    WHERE status = 'completed'
+    ORDER BY end_date DESC, publish_date DESC
+    LIMIT #{limit}
+  </select>
+
+</mapper>

@@ -6,8 +6,8 @@ import com.gzu.volunteerblockchain.dto.RegisterRequest;
 import com.gzu.volunteerblockchain.entity.JwtToken;
 import com.gzu.volunteerblockchain.entity.User;
 import com.gzu.volunteerblockchain.exception.BusinessException;
-import com.gzu.volunteerblockchain.repository.JwtTokenRepository;
-import com.gzu.volunteerblockchain.repository.UserRepository;
+import com.gzu.volunteerblockchain.mapper.JwtTokenMapper;
+import com.gzu.volunteerblockchain.mapper.UserMapper;
 import com.gzu.volunteerblockchain.service.AuthService;
 import com.gzu.volunteerblockchain.vo.AuthResponse;
 import com.gzu.volunteerblockchain.vo.UserProfileVO;
@@ -23,20 +23,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService {
 
     private static final String DEFAULT_ROLE = "volunteer";
+    private static final String ORG_ADMIN_ROLE = "organization_admin";
 
-    private final UserRepository userRepository;
-    private final JwtTokenRepository jwtTokenRepository;
+    private final UserMapper userMapper;
+    private final JwtTokenMapper jwtTokenMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     public AuthServiceImpl(
-        UserRepository userRepository,
-        JwtTokenRepository jwtTokenRepository,
+        UserMapper userMapper,
+        JwtTokenMapper jwtTokenMapper,
         PasswordEncoder passwordEncoder,
         JwtUtil jwtUtil
     ) {
-        this.userRepository = userRepository;
-        this.jwtTokenRepository = jwtTokenRepository;
+        this.userMapper = userMapper;
+        this.jwtTokenMapper = jwtTokenMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -46,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
     public UserProfileVO register(RegisterRequest request) {
         String normalizedEmail = normalizeEmail(request.getEmail());
 
-        if (userRepository.existsByEmail(normalizedEmail)) {
+        if (existsByEmail(normalizedEmail)) {
             throw new BusinessException("该邮箱已被注册");
         }
 
@@ -54,11 +55,11 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(request.getUsername().trim());
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(DEFAULT_ROLE);
+        user.setRole(resolveRole(request.getRole()));
         user.setTotalPoints(0);
 
-        User savedUser = userRepository.save(user);
-        return toUserProfile(savedUser);
+        userMapper.insert(user);
+        return toUserProfile(user);
     }
 
     @Override
@@ -66,14 +67,16 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         String normalizedEmail = normalizeEmail(request.getEmail());
 
-        User user = userRepository.findByEmail(normalizedEmail)
-            .orElseThrow(() -> new BusinessException("邮箱或密码错误"));
+        User user = findByEmail(normalizedEmail);
+        if (user == null) {
+            throw new BusinessException("邮箱或密码错误");
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BusinessException("邮箱或密码错误");
         }
 
-        jwtTokenRepository.deleteByUserIdAndExpiresAtBefore(user.getUserId(), LocalDateTime.now());
+        jwtTokenMapper.deleteExpiredTokens(user.getUserId(), LocalDateTime.now());
 
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plus(jwtUtil.getExpirationDuration());
@@ -84,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         jwtToken.setToken(token);
         jwtToken.setCreatedAt(LocalDateTime.now());
         jwtToken.setExpiresAt(LocalDateTime.ofInstant(expiresAt, ZoneId.systemDefault()));
-        jwtTokenRepository.save(jwtToken);
+        jwtTokenMapper.insert(jwtToken);
 
         AuthResponse response = new AuthResponse();
         response.setToken(token);
@@ -100,8 +103,10 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.extractBearerToken(authorizationHeader);
         Claims claims = jwtUtil.parseToken(token);
 
-        JwtToken tokenRecord = jwtTokenRepository.findTopByTokenOrderByTokenIdDesc(token)
-            .orElseThrow(() -> new BusinessException("登录状态已失效，请重新登录"));
+        JwtToken tokenRecord = jwtTokenMapper.selectLatestToken(token);
+        if (tokenRecord == null) {
+            throw new BusinessException("登录状态已失效，请重新登录");
+        }
 
         if (tokenRecord.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BusinessException("登录令牌已过期，请重新登录");
@@ -114,8 +119,10 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException("Token用户信息不合法");
         }
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new BusinessException("用户不存在"));
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
 
         return toUserProfile(user);
     }
@@ -127,6 +134,17 @@ public class AuthServiceImpl implements AuthService {
         return email.trim().toLowerCase();
     }
 
+    private String resolveRole(String role) {
+        if (role == null || role.isBlank()) {
+            return DEFAULT_ROLE;
+        }
+        String normalized = role.trim().toLowerCase();
+        if (DEFAULT_ROLE.equals(normalized) || ORG_ADMIN_ROLE.equals(normalized)) {
+            return normalized;
+        }
+        throw new BusinessException("不支持的用户角色");
+    }
+
     private UserProfileVO toUserProfile(User user) {
         UserProfileVO userProfileVO = new UserProfileVO();
         userProfileVO.setUserId(user.getUserId());
@@ -135,5 +153,14 @@ public class AuthServiceImpl implements AuthService {
         userProfileVO.setRole(user.getRole());
         userProfileVO.setTotalPoints(user.getTotalPoints());
         return userProfileVO;
+    }
+
+    private boolean existsByEmail(String email) {
+        Long count = userMapper.countByEmail(email);
+        return count != null && count > 0;
+    }
+
+    private User findByEmail(String email) {
+        return userMapper.selectByEmail(email);
     }
 }

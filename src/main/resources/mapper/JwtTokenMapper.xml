@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzu.volunteerblockchain.mapper.JwtTokenMapper">
+
+  <select id="selectLatestToken" resultType="com.gzu.volunteerblockchain.entity.JwtToken">
+    SELECT token_id, user_id, token, created_at, expires_at
+    FROM jwt_tokens
+    WHERE token = #{token}
+    ORDER BY token_id DESC
+    LIMIT 1
+  </select>
+
+  <delete id="deleteExpiredTokens">
+    DELETE FROM jwt_tokens
+    WHERE user_id = #{userId}
+      AND expires_at &lt; #{now}
+  </delete>
+
+</mapper>

@@ -12,6 +12,12 @@
       </template>
 
       <el-form label-position="top" @submit.prevent>
+        <el-form-item label="注册身份">
+          <el-radio-group v-model="role">
+            <el-radio-button label="volunteer">志愿者</el-radio-button>
+            <el-radio-button label="organization_admin">公益组织管理员</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input v-model="username" placeholder="请输入用户名" clearable />
         </el-form-item>
@@ -63,7 +69,8 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      loading: false
+      loading: false,
+      role: 'volunteer'
     }
   },
   methods: {
@@ -83,7 +90,8 @@ export default {
         await register({
           username: this.username,
           email: this.email,
-          password: this.password
+          password: this.password,
+          role: this.role
         })
 
         ElMessage.success('注册成功，请登录')

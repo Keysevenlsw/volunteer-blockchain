@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gzu.volunteerblockchain.mapper.UserMapper">
+
+  <select id="selectByEmail" resultType="com.gzu.volunteerblockchain.entity.User">
+    SELECT user_id, username, password_hash, email, avatar_path, organization_id, role, join_date, total_points
+    FROM users
+    WHERE email = #{email}
+    LIMIT 1
+  </select>
+
+  <select id="countByEmail" resultType="long">
+    SELECT COUNT(1)
+    FROM users
+    WHERE email = #{email}
+  </select>
+
+</mapper>
