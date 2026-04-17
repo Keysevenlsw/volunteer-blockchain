@@ -12,4 +12,6 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
 
     UserProfileVO getCurrentUser(String authorizationHeader);
+
+    UserProfileVO getCurrentUserProfile(Integer userId);
 }

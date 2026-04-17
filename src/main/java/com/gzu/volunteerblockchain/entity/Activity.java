@@ -5,12 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @TableName("activities")
 public class Activity {
 
     @TableId(value = "activity_id", type = IdType.AUTO)
     private Integer activityId;
+
+    @TableField("organization_id")
+    private Integer organizationId;
 
     @TableField("activity_name")
     private String activityName;
@@ -30,81 +37,54 @@ public class Activity {
     @TableField("location")
     private String location;
 
+    @TableField("contact_name")
+    private String contactName;
+
+    @TableField("contact_phone")
+    private String contactPhone;
+
+    @TableField("category_tags")
+    private String categoryTags;
+
     @TableField("image_path")
     private String imagePath;
+
+    @TableField("max_participants")
+    private Integer maxParticipants;
+
+    @TableField("current_participants")
+    private Integer currentParticipants;
+
+    @TableField("enroll_deadline")
+    private LocalDateTime enrollDeadline;
+
+    @TableField("created_by")
+    private Integer createdBy;
+
+    @TableField("requested_reward_points")
+    private Integer requestedRewardPoints;
+
+    @TableField("approved_reward_points")
+    private Integer approvedRewardPoints;
+
+    @TableField("review_status")
+    private String reviewStatus;
+
+    @TableField("review_note")
+    private String reviewNote;
+
+    @TableField("reviewed_by")
+    private Integer reviewedBy;
+
+    @TableField("reviewed_at")
+    private LocalDateTime reviewedAt;
 
     @TableField("status")
     private String status;
 
-    public Integer getActivityId() {
-        return activityId;
-    }
+    @TableField("created_at")
+    private LocalDateTime createdAt;
 
-    public void setActivityId(Integer activityId) {
-        this.activityId = activityId;
-    }
-
-    public String getActivityName() {
-        return activityName;
-    }
-
-    public void setActivityName(String activityName) {
-        this.activityName = activityName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
-    }
-
-    public LocalDateTime getPublishDate() {
-        return publishDate;
-    }
-
-    public void setPublishDate(LocalDateTime publishDate) {
-        this.publishDate = publishDate;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
 }

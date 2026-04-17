@@ -1,0 +1,95 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "bizKey", "type": "string" },
+      { "name": "userId", "type": "uint256" },
+      { "name": "organizationId", "type": "uint256" },
+      { "name": "points", "type": "uint256" },
+      { "name": "source", "type": "string" },
+      { "name": "referenceType", "type": "string" },
+      { "name": "referenceId", "type": "string" },
+      { "name": "digest", "type": "string" },
+      { "name": "createdAt", "type": "string" }
+    ],
+    "name": "creditPoints",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "bizKey", "type": "string" },
+      { "name": "userId", "type": "uint256" },
+      { "name": "organizationId", "type": "uint256" },
+      { "name": "points", "type": "uint256" },
+      { "name": "source", "type": "string" },
+      { "name": "referenceType", "type": "string" },
+      { "name": "referenceId", "type": "string" },
+      { "name": "digest", "type": "string" },
+      { "name": "createdAt", "type": "string" }
+    ],
+    "name": "debitPoints",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "bizKey", "type": "string" },
+      { "name": "userId", "type": "uint256" },
+      { "name": "organizationId", "type": "uint256" },
+      { "name": "points", "type": "uint256" },
+      { "name": "source", "type": "string" },
+      { "name": "referenceType", "type": "string" },
+      { "name": "referenceId", "type": "string" },
+      { "name": "digest", "type": "string" },
+      { "name": "createdAt", "type": "string" }
+    ],
+    "name": "refundPoints",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "name": "userId", "type": "uint256" }
+    ],
+    "name": "getBalance",
+    "outputs": [
+      { "name": "", "type": "uint256" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "name": "bizKey", "type": "string" }
+    ],
+    "name": "getTransaction",
+    "outputs": [
+      { "name": "userId", "type": "uint256" },
+      { "name": "organizationId", "type": "uint256" },
+      { "name": "pointsDelta", "type": "int256" },
+      { "name": "transactionType", "type": "string" },
+      { "name": "source", "type": "string" },
+      { "name": "referenceType", "type": "string" },
+      { "name": "referenceId", "type": "string" },
+      { "name": "digest", "type": "string" },
+      { "name": "createdAt", "type": "string" },
+      { "name": "balanceAfter", "type": "uint256" },
+      { "name": "status", "type": "string" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

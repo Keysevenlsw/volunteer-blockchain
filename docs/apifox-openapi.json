@@ -1,0 +1,760 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "基于区块链的志愿者服务认证系统 API",
+    "description": "Apifox 导入文件。非公共接口统一使用 Authorization: Bearer <token>。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "本地开发环境"
+    }
+  ],
+  "security": [{"bearerAuth": []}],
+  "tags": [
+    {"name": "认证"},
+    {"name": "组织"},
+    {"name": "活动"},
+    {"name": "商城"},
+    {"name": "平台审核"},
+    {"name": "存证"},
+    {"name": "公共"},
+    {"name": "文件"}
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "注册账号",
+        "description": "只允许注册 volunteer 或 organization_admin。",
+        "security": [],
+        "requestBody": {"$ref": "#/components/requestBodies/RegisterRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "登录",
+        "security": [],
+        "requestBody": {"$ref": "#/components/requestBodies/LoginRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["认证"],
+        "summary": "当前登录用户",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/organizations": {
+      "get": {
+        "tags": ["组织"],
+        "summary": "组织列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/join-requests": {
+      "post": {
+        "tags": ["组织"],
+        "summary": "申请默认归属组织",
+        "description": "默认归属组织只表示志愿者档案归属，不限制活动参与范围。",
+        "requestBody": {"$ref": "#/components/requestBodies/JoinOrganizationRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/join-requests/mine": {
+      "get": {
+        "tags": ["组织"],
+        "summary": "我的归属组织申请",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/join-requests/organization": {
+      "get": {
+        "tags": ["组织"],
+        "summary": "组织归属申请列表",
+        "parameters": [{"$ref": "#/components/parameters/StatusQuery"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/join-requests/{id}/review": {
+      "post": {
+        "tags": ["组织"],
+        "summary": "审核归属组织申请",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/ReviewJoinRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/activities": {
+      "post": {
+        "tags": ["活动"],
+        "summary": "组织创建活动草稿",
+        "requestBody": {"$ref": "#/components/requestBodies/ActivitySaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/activities/{id}": {
+      "put": {
+        "tags": ["活动"],
+        "summary": "组织更新活动",
+        "description": "已审核活动修改关键字段后会重新进入 pending_review。",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/ActivitySaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      },
+      "delete": {
+        "tags": ["活动"],
+        "summary": "组织删除活动",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/activities/{id}/submit": {
+      "post": {
+        "tags": ["活动"],
+        "summary": "提交活动发布审核",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/activities/volunteer": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "志愿者活动大厅",
+        "description": "返回全平台已审核活动，取消同组织限制。",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/activities/organization": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "组织活动列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/participations/{activityId}": {
+      "post": {
+        "tags": ["活动"],
+        "summary": "报名活动",
+        "description": "志愿者可报名任意组织已审核活动。",
+        "parameters": [{"$ref": "#/components/parameters/ActivityIdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      },
+      "delete": {
+        "tags": ["活动"],
+        "summary": "取消报名",
+        "parameters": [{"$ref": "#/components/parameters/ActivityIdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/participations/mine": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "我的报名记录",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/completions": {
+      "post": {
+        "tags": ["活动"],
+        "summary": "提交完成报告",
+        "requestBody": {"$ref": "#/components/requestBodies/CompletionSubmitRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/completions/mine": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "我的完成报告",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "组织完成报告审核列表",
+        "parameters": [{"$ref": "#/components/parameters/StatusQuery"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/reviews/{completionId}": {
+      "post": {
+        "tags": ["活动"],
+        "summary": "审核完成报告",
+        "description": "审核通过后按 approvedRewardPoints 发放积分，并创建存证索引。",
+        "parameters": [{"$ref": "#/components/parameters/CompletionIdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/CompletionReviewRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/points": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "我的积分流水",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/points/balance": {
+      "get": {
+        "tags": ["活动"],
+        "summary": "我的链上积分余额",
+        "description": "返回链上余额、数据库缓存余额以及两者是否一致。",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/products": {
+      "post": {
+        "tags": ["商城"],
+        "summary": "组织创建商品草稿",
+        "requestBody": {"$ref": "#/components/requestBodies/ProductSaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/products/{id}": {
+      "put": {
+        "tags": ["商城"],
+        "summary": "组织更新商品",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/ProductSaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      },
+      "delete": {
+        "tags": ["商城"],
+        "summary": "组织删除商品",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/products/{id}/submit": {
+      "post": {
+        "tags": ["商城"],
+        "summary": "提交商品审核",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/products/volunteer": {
+      "get": {
+        "tags": ["商城"],
+        "summary": "统一商城商品列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/products/organization": {
+      "get": {
+        "tags": ["商城"],
+        "summary": "组织商品列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/redemptions": {
+      "post": {
+        "tags": ["商城"],
+        "summary": "兑换商品",
+        "description": "使用用户全局积分余额兑换，履约路由到商品所属组织。",
+        "requestBody": {"$ref": "#/components/requestBodies/RedemptionRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/redemptions/mine": {
+      "get": {
+        "tags": ["商城"],
+        "summary": "我的兑换记录",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/redemptions/organization": {
+      "get": {
+        "tags": ["商城"],
+        "summary": "组织兑换履约列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/redemptions/{id}/status": {
+      "post": {
+        "tags": ["商城"],
+        "summary": "更新兑换状态",
+        "description": "fulfilled 表示已履约，cancelled 表示取消并回滚积分和库存。",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/RedemptionStatusRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "用户列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/users/{userId}/roles": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "用户角色",
+        "parameters": [{"$ref": "#/components/parameters/UserIdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      },
+      "put": {
+        "tags": ["平台审核"],
+        "summary": "分配用户角色",
+        "parameters": [{"$ref": "#/components/parameters/UserIdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/AssignUserRolesRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/roles": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "角色列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/roles/{roleCode}/permissions": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "角色权限",
+        "parameters": [{"name": "roleCode", "in": "path", "required": true, "schema": {"type": "string"}, "example": "system_admin"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/permissions": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "权限列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/activity-reviews": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "活动发布审核列表",
+        "parameters": [{"$ref": "#/components/parameters/StatusQuery"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/activity-reviews/{activityId}": {
+      "post": {
+        "tags": ["平台审核"],
+        "summary": "处理活动发布审核",
+        "description": "普通活动支持 approved/rejected；高风险活动先 escalated，再由 system_admin 复审。",
+        "parameters": [{"$ref": "#/components/parameters/ActivityIdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/ActivityReviewRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/product-reviews": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "商品审核列表",
+        "parameters": [{"$ref": "#/components/parameters/StatusQuery"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/product-reviews/{productId}": {
+      "post": {
+        "tags": ["平台审核"],
+        "summary": "处理商品审核",
+        "parameters": [{"$ref": "#/components/parameters/ProductIdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/ProductReviewRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/points-rules": {
+      "get": {
+        "tags": ["平台审核"],
+        "summary": "积分规则列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      },
+      "post": {
+        "tags": ["平台审核"],
+        "summary": "创建积分规则",
+        "requestBody": {"$ref": "#/components/requestBodies/PointsRuleSaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/points-rules/{id}": {
+      "put": {
+        "tags": ["平台审核"],
+        "summary": "更新积分规则",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "requestBody": {"$ref": "#/components/requestBodies/PointsRuleSaveRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/points/sync-balances": {
+      "post": {
+        "tags": ["平台审核"],
+        "summary": "同步链上积分余额缓存",
+        "description": "超级管理员触发链上余额校验，并将 users.total_points 修正为链上余额。",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/admin/points/migrate": {
+      "post": {
+        "tags": ["平台审核"],
+        "summary": "历史积分迁移上链",
+        "description": "超级管理员执行幂等迁移。系统为每个 total_points > 0 且未迁移的用户写入 migration_init 链上积分交易。",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/evidences/{bizType}/{bizId}": {
+      "get": {
+        "tags": ["存证"],
+        "summary": "登录用户查询单条存证",
+        "parameters": [{"$ref": "#/components/parameters/BizTypePath"}, {"$ref": "#/components/parameters/BizIdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/evidences/organization": {
+      "get": {
+        "tags": ["存证"],
+        "summary": "组织存证列表",
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/evidences/{id}/retry": {
+      "post": {
+        "tags": ["存证"],
+        "summary": "重试上链",
+        "parameters": [{"$ref": "#/components/parameters/IdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/public/info": {
+      "get": {
+        "tags": ["公共"],
+        "summary": "首页信息列表",
+        "security": [],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/public/completed-projects": {
+      "get": {
+        "tags": ["公共"],
+        "summary": "已完成项目展示",
+        "security": [],
+        "parameters": [{"name": "limit", "in": "query", "required": false, "schema": {"type": "integer", "default": 6}}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/public/evidences": {
+      "get": {
+        "tags": ["公共"],
+        "summary": "公开存证列表",
+        "security": [],
+        "parameters": [
+          {"name": "limit", "in": "query", "required": false, "schema": {"type": "integer", "default": 20}},
+          {"name": "status", "in": "query", "required": false, "schema": {"type": "string"}},
+          {"name": "organizationId", "in": "query", "required": false, "schema": {"type": "integer"}},
+          {"name": "keyword", "in": "query", "required": false, "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/public/evidences/{bizType}/{bizId}": {
+      "get": {
+        "tags": ["公共"],
+        "summary": "公开存证详情",
+        "security": [],
+        "parameters": [{"$ref": "#/components/parameters/BizTypePath"}, {"$ref": "#/components/parameters/BizIdPath"}],
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    },
+    "/api/files/upload": {
+      "post": {
+        "tags": ["文件"],
+        "summary": "上传文件",
+        "requestBody": {"$ref": "#/components/requestBodies/FileUploadRequest"},
+        "responses": {"200": {"$ref": "#/components/responses/ApiResponse"}}
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+    },
+    "parameters": {
+      "IdPath": {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "UserIdPath": {"name": "userId", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "ActivityIdPath": {"name": "activityId", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "ProductIdPath": {"name": "productId", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "CompletionIdPath": {"name": "completionId", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "BizTypePath": {"name": "bizType", "in": "path", "required": true, "schema": {"type": "string", "enum": ["completion"]}},
+      "BizIdPath": {"name": "bizId", "in": "path", "required": true, "schema": {"type": "integer"}},
+      "StatusQuery": {"name": "status", "in": "query", "required": false, "schema": {"type": "string"}}
+    },
+    "responses": {
+      "ApiResponse": {
+        "description": "统一响应",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponse"},
+            "example": {"success": true, "message": "操作成功", "data": {}}
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "RegisterRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RegisterRequest"}, "example": {"username": "志愿者张三", "email": "volunteer@example.com", "password": "Volunteer123", "role": "volunteer"}}}
+      },
+      "LoginRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LoginRequest"}, "example": {"email": "admin@example.com", "password": "Admin123456"}}}
+      },
+      "JoinOrganizationRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/JoinOrganizationRequest"}, "example": {"organizationId": 1, "applyReason": "希望加入该组织。"}}}
+      },
+      "ReviewJoinRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ReviewJoinRequest"}, "example": {"status": "approved", "reviewNote": "同意加入。"}}}
+      },
+      "ActivitySaveRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ActivitySaveRequest"}}}
+      },
+      "CompletionSubmitRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CompletionSubmitRequest"}}}
+      },
+      "CompletionReviewRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CompletionReviewRequest"}, "example": {"status": "approved", "reviewNote": "服务记录真实，审核通过。"}}}
+      },
+      "ProductSaveRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductSaveRequest"}}}
+      },
+      "RedemptionRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RedemptionRequest"}, "example": {"productId": 1}}}
+      },
+      "RedemptionStatusRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/RedemptionStatusRequest"}, "example": {"status": "fulfilled"}}}
+      },
+      "AssignUserRolesRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AssignUserRolesRequest"}, "example": {"roleCodes": ["activity_reviewer"]}}}
+      },
+      "ActivityReviewRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ActivityReviewRequest"}, "example": {"status": "approved", "approvedRewardPoints": 30, "reviewNote": "活动信息真实，积分合理。"}}}
+      },
+      "ProductReviewRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductReviewRequest"}, "example": {"status": "approved", "reviewNote": "商品信息完整，可以进入统一商城。"}}}
+      },
+      "PointsRuleSaveRequest": {
+        "required": true,
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PointsRuleSaveRequest"}}}
+      },
+      "FileUploadRequest": {
+        "required": true,
+        "content": {"multipart/form-data": {"schema": {"type": "object", "required": ["file"], "properties": {"file": {"type": "string", "format": "binary"}}}}}
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "message": {"type": "string"},
+          "data": {
+            "description": "实际类型随接口变化，字段明细见接口联调用例和后端 VO。",
+            "nullable": true,
+            "oneOf": [
+              {"type": "object"},
+              {"type": "array", "items": {}},
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "integer"},
+              {"type": "boolean"}
+            ]
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "username": {"type": "string", "maxLength": 100},
+          "email": {"type": "string", "format": "email", "maxLength": 100},
+          "password": {"type": "string", "minLength": 6, "maxLength": 50},
+          "role": {"type": "string", "enum": ["volunteer", "organization_admin"], "default": "volunteer"},
+          "organizationName": {"type": "string", "maxLength": 255},
+          "organizationDescription": {"type": "string", "maxLength": 2000}
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string"}
+        }
+      },
+      "JoinOrganizationRequest": {
+        "type": "object",
+        "required": ["organizationId"],
+        "properties": {
+          "organizationId": {"type": "integer"},
+          "applyReason": {"type": "string", "maxLength": 500}
+        }
+      },
+      "ReviewJoinRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["approved", "rejected"]},
+          "reviewNote": {"type": "string", "maxLength": 500}
+        }
+      },
+      "ActivitySaveRequest": {
+        "type": "object",
+        "required": ["activityName", "startDate", "endDate", "location", "maxParticipants", "requestedRewardPoints"],
+        "properties": {
+          "activityName": {"type": "string", "maxLength": 255},
+          "description": {"type": "string", "maxLength": 3000},
+          "startDate": {"type": "string", "example": "2026-05-10 09:00:00"},
+          "endDate": {"type": "string", "example": "2026-05-10 12:00:00"},
+          "location": {"type": "string", "maxLength": 255},
+          "contactName": {"type": "string", "maxLength": 255},
+          "contactPhone": {"type": "string", "maxLength": 20},
+          "categoryTags": {"type": "string", "maxLength": 255},
+          "imagePath": {"type": "string", "maxLength": 255},
+          "maxParticipants": {"type": "integer", "minimum": 1},
+          "requestedRewardPoints": {"type": "integer", "minimum": 0, "description": "组织申请积分"},
+          "enrollDeadline": {"type": "string", "example": "2026-05-09 18:00:00"}
+        },
+        "example": {
+          "activityName": "社区环保清洁活动",
+          "description": "清理社区公共区域垃圾并进行环保宣传。",
+          "startDate": "2026-05-10 09:00:00",
+          "endDate": "2026-05-10 12:00:00",
+          "location": "广州市天河区社区广场",
+          "contactName": "李老师",
+          "contactPhone": "13800000000",
+          "categoryTags": "GENERAL,环保",
+          "imagePath": "/uploads/projects/clean.png",
+          "maxParticipants": 30,
+          "requestedRewardPoints": 30,
+          "enrollDeadline": "2026-05-09 18:00:00"
+        }
+      },
+      "CompletionSubmitRequest": {
+        "type": "object",
+        "required": ["activityId", "serviceLocation", "serviceStartTime", "serviceEndTime", "reportText", "contributionDetails"],
+        "properties": {
+          "activityId": {"type": "integer"},
+          "serviceLocation": {"type": "string"},
+          "serviceStartTime": {"type": "string", "example": "2026-05-10 09:00:00"},
+          "serviceEndTime": {"type": "string", "example": "2026-05-10 12:00:00"},
+          "reportText": {"type": "string", "maxLength": 3000},
+          "contributionDetails": {"type": "string", "maxLength": 3000},
+          "attachmentPaths": {"type": "array", "items": {"type": "string"}}
+        },
+        "example": {
+          "activityId": 1,
+          "serviceLocation": "广州市天河区社区广场",
+          "serviceStartTime": "2026-05-10 09:00:00",
+          "serviceEndTime": "2026-05-10 12:00:00",
+          "reportText": "完成社区道路和绿化带清洁。",
+          "contributionDetails": "清理垃圾 8 袋，协助完成环保宣传。",
+          "attachmentPaths": ["/uploads/projects/report-1.png"]
+        }
+      },
+      "CompletionReviewRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["approved", "rejected"]},
+          "reviewNote": {"type": "string", "maxLength": 500}
+        }
+      },
+      "ProductSaveRequest": {
+        "type": "object",
+        "required": ["productName", "price", "stock"],
+        "properties": {
+          "productName": {"type": "string", "maxLength": 255},
+          "productDescription": {"type": "string", "maxLength": 3000},
+          "price": {"type": "integer", "minimum": 1},
+          "stock": {"type": "integer", "minimum": 0},
+          "imagePath": {"type": "string", "maxLength": 255}
+        },
+        "example": {
+          "productName": "志愿服务纪念水杯",
+          "productDescription": "统一积分商城兑换商品。",
+          "price": 20,
+          "stock": 100,
+          "imagePath": "/uploads/products/cup.png"
+        }
+      },
+      "RedemptionRequest": {
+        "type": "object",
+        "required": ["productId"],
+        "properties": {"productId": {"type": "integer"}}
+      },
+      "RedemptionStatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {"status": {"type": "string", "enum": ["fulfilled", "cancelled"]}}
+      },
+      "AssignUserRolesRequest": {
+        "type": "object",
+        "required": ["roleCodes"],
+        "properties": {
+          "roleCodes": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["volunteer", "organization_admin", "activity_reviewer", "product_reviewer", "system_admin"]}
+          }
+        }
+      },
+      "ActivityReviewRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["approved", "rejected", "escalated"]},
+          "approvedRewardPoints": {"type": "integer", "minimum": 0, "description": "审核通过时必填，积分发放读取该值。"},
+          "reviewNote": {"type": "string", "maxLength": 500}
+        }
+      },
+      "ProductReviewRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {"type": "string", "enum": ["approved", "rejected", "off_shelf"]},
+          "reviewNote": {"type": "string", "maxLength": 500}
+        }
+      },
+      "PointsRuleSaveRequest": {
+        "type": "object",
+        "required": ["activityCategory", "minServiceHours", "maxServiceHours", "suggestedPoints", "maxPoints", "escalationThreshold", "status"],
+        "properties": {
+          "activityCategory": {"type": "string", "maxLength": 100},
+          "minServiceHours": {"type": "number"},
+          "maxServiceHours": {"type": "number"},
+          "suggestedPoints": {"type": "integer", "minimum": 0},
+          "maxPoints": {"type": "integer", "minimum": 0},
+          "escalationThreshold": {"type": "integer", "minimum": 0},
+          "status": {"type": "integer", "enum": [0, 1]}
+        },
+        "example": {
+          "activityCategory": "GENERAL",
+          "minServiceHours": 0,
+          "maxServiceHours": 4,
+          "suggestedPoints": 30,
+          "maxPoints": 50,
+          "escalationThreshold": 80,
+          "status": 1
+        }
+      }
+    }
+  }
+}

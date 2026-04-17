@@ -22,3 +22,23 @@ export function getPublicInfo() {
 export function getCompletedProjects(limit = 6) {
   return request(`/api/public/completed-projects?limit=${limit}`)
 }
+
+export function getPublicEvidences(params = {}) {
+  const searchParams = new URLSearchParams()
+  const { limit = 20, status, organizationId, keyword } = params
+  searchParams.set('limit', String(limit))
+  if (status) {
+    searchParams.set('status', status)
+  }
+  if (organizationId) {
+    searchParams.set('organizationId', String(organizationId))
+  }
+  if (keyword) {
+    searchParams.set('keyword', keyword)
+  }
+  return request(`/api/public/evidences?${searchParams.toString()}`)
+}
+
+export function getPublicEvidence(bizType, bizId) {
+  return request(`/api/public/evidences/${bizType}/${bizId}`)
+}

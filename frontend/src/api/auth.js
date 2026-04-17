@@ -33,29 +33,124 @@ async function request(path, options = {}) {
   return result.data
 }
 
-export function register(payload) {
-  return request('/api/auth/register', {
+function normalizeCode(value) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function normalizeCodeList(values, preferredFirstCode = null) {
+  const normalized = []
+  const seen = new Set()
+
+  const append = (value) => {
+    const code = normalizeCode(value)
+    if (!code || seen.has(code)) {
+      return
+    }
+    seen.add(code)
+    normalized.push(code)
+  }
+
+  append(preferredFirstCode)
+  if (Array.isArray(values)) {
+    values.forEach(append)
+  }
+
+  return normalized
+}
+
+export function normalizeUser(user) {
+  if (!user || typeof user !== 'object') {
+    return null
+  }
+
+  const primaryRole = normalizeCode(user.primaryRole) || normalizeCode(user.role)
+  const roles = normalizeCodeList(user.roles, primaryRole)
+  const permissions = normalizeCodeList(user.permissions)
+  const resolvedPrimaryRole = primaryRole || roles[0] || null
+
+  return {
+    ...user,
+    role: resolvedPrimaryRole,
+    primaryRole: resolvedPrimaryRole,
+    roles,
+    permissions
+  }
+}
+
+export function hasRole(roleCode, user = getCachedUser()) {
+  const normalizedRole = normalizeCode(roleCode)
+  const normalizedUser = normalizeUser(user)
+  return !!normalizedRole && !!normalizedUser && normalizedUser.roles.includes(normalizedRole)
+}
+
+export function hasPermission(permissionCode, user = getCachedUser()) {
+  const normalizedPermission = normalizeCode(permissionCode)
+  const normalizedUser = normalizeUser(user)
+  return !!normalizedPermission && !!normalizedUser && normalizedUser.permissions.includes(normalizedPermission)
+}
+
+export function getWorkspaceRoute(user = getCachedUser()) {
+  const normalizedUser = normalizeUser(user)
+  if (!normalizedUser) {
+    return '/'
+  }
+  if (hasRole('system_admin', normalizedUser) || normalizedUser.primaryRole === 'system_admin') {
+    return '/admin'
+  }
+  if (
+    hasRole('activity_reviewer', normalizedUser) ||
+    hasRole('product_reviewer', normalizedUser) ||
+    normalizedUser.primaryRole === 'activity_reviewer' ||
+    normalizedUser.primaryRole === 'product_reviewer'
+  ) {
+    return '/reviewer'
+  }
+  if (hasRole('organization_admin', normalizedUser) || normalizedUser.primaryRole === 'organization_admin') {
+    return '/organization-workbench'
+  }
+  if (hasRole('volunteer', normalizedUser) || normalizedUser.primaryRole === 'volunteer') {
+    return '/profile'
+  }
+  return '/'
+}
+
+export async function register(payload) {
+  const user = await request('/api/auth/register', {
     method: 'POST',
     body: payload
   })
+  return normalizeUser(user)
 }
 
-export function login(payload) {
-  return request('/api/auth/login', {
+export async function login(payload) {
+  const authData = await request('/api/auth/login', {
     method: 'POST',
     body: payload
   })
+  return {
+    ...authData,
+    user: normalizeUser(authData?.user)
+  }
 }
 
-export function getCurrentUser(token) {
-  return request('/api/auth/me', {
+export async function getCurrentUser(token) {
+  const user = await request('/api/auth/me', {
     token
   })
+  return normalizeUser(user)
 }
 
 export function saveAuth(authResponse) {
-  localStorage.setItem(TOKEN_KEY, authResponse.token)
-  localStorage.setItem(USER_KEY, JSON.stringify(authResponse.user || {}))
+  if (authResponse?.token) {
+    localStorage.setItem(TOKEN_KEY, authResponse.token)
+  }
+
+  const normalizedUser = normalizeUser(authResponse?.user)
+  if (normalizedUser) {
+    localStorage.setItem(USER_KEY, JSON.stringify(normalizedUser))
+  } else {
+    localStorage.removeItem(USER_KEY)
+  }
 }
 
 export function clearAuth() {
@@ -74,7 +169,7 @@ export function getCachedUser() {
   }
 
   try {
-    return JSON.parse(raw)
+    return normalizeUser(JSON.parse(raw))
   } catch (error) {
     clearAuth()
     return null

@@ -1,0 +1,36 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "bizType", "type": "string" },
+      { "name": "bizId", "type": "string" },
+      { "name": "digest", "type": "string" },
+      { "name": "reviewer", "type": "string" },
+      { "name": "reviewedAt", "type": "string" },
+      { "name": "storagePath", "type": "string" }
+    ],
+    "name": "saveEvidence",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "name": "bizType", "type": "string" },
+      { "name": "bizId", "type": "string" }
+    ],
+    "name": "getEvidence",
+    "outputs": [
+      { "name": "", "type": "string" },
+      { "name": "", "type": "string" },
+      { "name": "", "type": "string" },
+      { "name": "", "type": "string" },
+      { "name": "", "type": "string" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

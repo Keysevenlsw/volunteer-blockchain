@@ -1,14 +1,19 @@
 package com.gzu.volunteerblockchain.service.impl;
 
+import com.gzu.volunteerblockchain.common.AuthUser;
 import com.gzu.volunteerblockchain.common.JwtUtil;
+import com.gzu.volunteerblockchain.common.RoleConstants;
 import com.gzu.volunteerblockchain.dto.LoginRequest;
 import com.gzu.volunteerblockchain.dto.RegisterRequest;
 import com.gzu.volunteerblockchain.entity.JwtToken;
+import com.gzu.volunteerblockchain.entity.Organization;
 import com.gzu.volunteerblockchain.entity.User;
 import com.gzu.volunteerblockchain.exception.BusinessException;
 import com.gzu.volunteerblockchain.mapper.JwtTokenMapper;
+import com.gzu.volunteerblockchain.mapper.OrganizationMapper;
 import com.gzu.volunteerblockchain.mapper.UserMapper;
 import com.gzu.volunteerblockchain.service.AuthService;
+import com.gzu.volunteerblockchain.service.RbacService;
 import com.gzu.volunteerblockchain.vo.AuthResponse;
 import com.gzu.volunteerblockchain.vo.UserProfileVO;
 import io.jsonwebtoken.Claims;
@@ -22,65 +27,75 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private static final String DEFAULT_ROLE = "volunteer";
-    private static final String ORG_ADMIN_ROLE = "organization_admin";
-
     private final UserMapper userMapper;
     private final JwtTokenMapper jwtTokenMapper;
+    private final OrganizationMapper organizationMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RbacService rbacService;
 
     public AuthServiceImpl(
         UserMapper userMapper,
         JwtTokenMapper jwtTokenMapper,
+        OrganizationMapper organizationMapper,
         PasswordEncoder passwordEncoder,
-        JwtUtil jwtUtil
+        JwtUtil jwtUtil,
+        RbacService rbacService
     ) {
         this.userMapper = userMapper;
         this.jwtTokenMapper = jwtTokenMapper;
+        this.organizationMapper = organizationMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.rbacService = rbacService;
     }
 
     @Override
     @Transactional
     public UserProfileVO register(RegisterRequest request) {
-        String normalizedEmail = normalizeEmail(request.getEmail());
-
-        if (existsByEmail(normalizedEmail)) {
+        String email = normalizeEmail(request.getEmail());
+        if (existsByEmail(email)) {
             throw new BusinessException("该邮箱已被注册");
         }
 
         User user = new User();
-        user.setUsername(request.getUsername().trim());
-        user.setEmail(normalizedEmail);
+        user.setUsername(trimRequired(request.getUsername(), "用户名不能为空"));
+        user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(resolveRole(request.getRole()));
+        user.setRole(resolveRegistrationRole(request.getRole()));
         user.setTotalPoints(0);
+        user.setJoinDate(LocalDateTime.now());
+
+        if (RoleConstants.ORGANIZATION_ADMIN.equals(user.getRole())) {
+            String organizationName = trimRequired(request.getOrganizationName(), "组织管理员注册时必须填写组织名称");
+            Organization organization = new Organization();
+            organization.setOrganizationName(organizationName);
+            organization.setOrganizationDescription(trimToNull(request.getOrganizationDescription()));
+            organization.setCreatedAt(LocalDateTime.now());
+            organizationMapper.insert(organization);
+            user.setOrganizationId(organization.getOrganizationId());
+        }
 
         userMapper.insert(user);
-        return toUserProfile(user);
+        rbacService.ensureUserPrimaryRole(user.getUserId(), user.getRole());
+        return getCurrentUserProfile(user.getUserId());
     }
 
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        String normalizedEmail = normalizeEmail(request.getEmail());
-
-        User user = findByEmail(normalizedEmail);
-        if (user == null) {
-            throw new BusinessException("邮箱或密码错误");
-        }
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+        String email = normalizeEmail(request.getEmail());
+        User user = userMapper.selectByEmail(email);
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new BusinessException("邮箱或密码错误");
         }
 
         jwtTokenMapper.deleteExpiredTokens(user.getUserId(), LocalDateTime.now());
 
+        AuthUser authUser = rbacService.buildAuthUser(user);
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plus(jwtUtil.getExpirationDuration());
-        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole(), issuedAt, expiresAt);
+        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), authUser.getPrimaryRole(), issuedAt, expiresAt);
 
         JwtToken jwtToken = new JwtToken();
         jwtToken.setUserId(user.getUserId());
@@ -104,55 +119,51 @@ public class AuthServiceImpl implements AuthService {
         Claims claims = jwtUtil.parseToken(token);
 
         JwtToken tokenRecord = jwtTokenMapper.selectLatestToken(token);
-        if (tokenRecord == null) {
+        if (tokenRecord == null || tokenRecord.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BusinessException("登录状态已失效，请重新登录");
-        }
-
-        if (tokenRecord.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("登录令牌已过期，请重新登录");
         }
 
         Integer userId;
         try {
             userId = Integer.parseInt(claims.getSubject());
         } catch (NumberFormatException ex) {
-            throw new BusinessException("Token用户信息不合法");
+            throw new BusinessException("无效的登录令牌");
         }
 
+        return getCurrentUserProfile(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserProfileVO getCurrentUserProfile(Integer userId) {
+        User user = requireUser(userId);
+        return toUserProfile(user);
+    }
+
+    private UserProfileVO toUserProfile(User user) {
+        AuthUser authUser = rbacService.buildAuthUser(user);
+        String organizationName = findOrganizationName(user.getOrganizationId());
+
+        UserProfileVO profile = new UserProfileVO();
+        profile.setUserId(user.getUserId());
+        profile.setUsername(user.getUsername());
+        profile.setEmail(user.getEmail());
+        profile.setRole(authUser.getPrimaryRole());
+        profile.setPrimaryRole(authUser.getPrimaryRole());
+        profile.setRoles(authUser.getRoles());
+        profile.setPermissions(authUser.getPermissions());
+        profile.setOrganizationId(user.getOrganizationId());
+        profile.setOrganizationName(organizationName);
+        profile.setTotalPoints(user.getTotalPoints());
+        return profile;
+    }
+
+    private User requireUser(Integer userId) {
         User user = userMapper.selectById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
-
-        return toUserProfile(user);
-    }
-
-    private String normalizeEmail(String email) {
-        if (email == null) {
-            return null;
-        }
-        return email.trim().toLowerCase();
-    }
-
-    private String resolveRole(String role) {
-        if (role == null || role.isBlank()) {
-            return DEFAULT_ROLE;
-        }
-        String normalized = role.trim().toLowerCase();
-        if (DEFAULT_ROLE.equals(normalized) || ORG_ADMIN_ROLE.equals(normalized)) {
-            return normalized;
-        }
-        throw new BusinessException("不支持的用户角色");
-    }
-
-    private UserProfileVO toUserProfile(User user) {
-        UserProfileVO userProfileVO = new UserProfileVO();
-        userProfileVO.setUserId(user.getUserId());
-        userProfileVO.setUsername(user.getUsername());
-        userProfileVO.setEmail(user.getEmail());
-        userProfileVO.setRole(user.getRole());
-        userProfileVO.setTotalPoints(user.getTotalPoints());
-        return userProfileVO;
+        return user;
     }
 
     private boolean existsByEmail(String email) {
@@ -160,7 +171,41 @@ public class AuthServiceImpl implements AuthService {
         return count != null && count > 0;
     }
 
-    private User findByEmail(String email) {
-        return userMapper.selectByEmail(email);
+    private String findOrganizationName(Integer organizationId) {
+        if (organizationId == null) {
+            return null;
+        }
+        Organization organization = organizationMapper.selectById(organizationId);
+        return organization == null ? null : organization.getOrganizationName();
+    }
+
+    private String resolveRegistrationRole(String rawRole) {
+        if (rawRole == null || rawRole.isBlank()) {
+            return RoleConstants.VOLUNTEER;
+        }
+        String role = rawRole.trim().toLowerCase();
+        if (RoleConstants.VOLUNTEER.equals(role) || RoleConstants.ORGANIZATION_ADMIN.equals(role)) {
+            return role;
+        }
+        throw new BusinessException("注册仅允许志愿者或组织管理员角色");
+    }
+
+    private String normalizeEmail(String email) {
+        return trimRequired(email, "邮箱不能为空").toLowerCase();
+    }
+
+    private String trimRequired(String value, String message) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new BusinessException(message);
+        }
+        return value.trim();
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
