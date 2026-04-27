@@ -26,7 +26,8 @@ const STATUS_META = {
   },
   points: {
     earned: { label: '收入', tone: 'success' },
-    spent: { label: '支出', tone: 'danger' }
+    spent: { label: '支出', tone: 'danger' },
+    refund: { label: '退款', tone: 'primary' }
   },
   review: {
     draft: { label: '草稿', tone: 'neutral' },

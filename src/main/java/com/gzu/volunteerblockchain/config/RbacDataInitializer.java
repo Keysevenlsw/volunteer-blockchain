@@ -148,6 +148,7 @@ public class RbacDataInitializer implements ApplicationRunner {
         if (systemAdmin != null) {
             seedDefaultPointsRules(systemAdmin.getUserId());
         }
+        seedDemoPublicData(systemAdmin == null ? null : systemAdmin.getUserId());
     }
 
     private void ensureCoreTables() {
@@ -600,6 +601,288 @@ public class RbacDataInitializer implements ApplicationRunner {
         rule.setCreatedAt(LocalDateTime.now());
         rule.setUpdatedAt(LocalDateTime.now());
         pointsRuleConfigMapper.insert(rule);
+    }
+
+    private void seedDemoPublicData(Integer reviewerId) {
+        Integer communityOrgId = seedDemoOrganization(
+            "社区暖心志愿服务队",
+            "长期开展社区助老、便民服务、环境维护和邻里互助活动。"
+        );
+        Integer youthOrgId = seedDemoOrganization(
+            "城市青年公益联盟",
+            "聚焦青年志愿服务、文明倡导、公益宣传和大型活动保障。"
+        );
+        Integer ecologyOrgId = seedDemoOrganization(
+            "绿色家园环保协会",
+            "围绕河道巡护、垃圾分类、低碳宣传和生态保护开展公益行动。"
+        );
+
+        seedDemoActivity(
+            communityOrgId,
+            "周末社区助老陪伴行动",
+            "为社区独居老人提供入户探访、生活协助、手机使用指导和陪伴交流。",
+            "南明区花果园社区服务中心",
+            "助老服务,社区服务",
+            2,
+            2,
+            36,
+            12,
+            20,
+            20,
+            "王老师",
+            "13800000001",
+            reviewerId
+        );
+        seedDemoActivity(
+            youthOrgId,
+            "城市文明交通引导志愿服务",
+            "在重点路口开展文明劝导、路线咨询和公共秩序维护，协助营造安全出行环境。",
+            "观山湖区会展中心路口",
+            "文明引导,城市服务",
+            5,
+            1,
+            48,
+            18,
+            30,
+            30,
+            "李老师",
+            "13800000002",
+            reviewerId
+        );
+        seedDemoActivity(
+            ecologyOrgId,
+            "河道清洁与环保宣传活动",
+            "组织志愿者进行河岸垃圾清理、环保知识宣传和水环境巡护记录。",
+            "甲秀楼沿河步道",
+            "环境保护,公益宣传",
+            7,
+            1,
+            60,
+            24,
+            35,
+            35,
+            "陈老师",
+            "13800000003",
+            reviewerId
+        );
+        seedDemoActivity(
+            communityOrgId,
+            "便民服务日咨询引导",
+            "协助社区开展政策咨询、办事引导、秩序维护和居民需求登记。",
+            "云岩区未来方舟党群服务中心",
+            "便民服务,社区治理",
+            -1,
+            3,
+            40,
+            16,
+            25,
+            25,
+            "赵老师",
+            "13800000004",
+            reviewerId
+        );
+        Integer volunteerA = seedDemoVolunteer("汪馨", "demo.volunteer.a@example.com");
+        Integer volunteerB = seedDemoVolunteer("李晴", "demo.volunteer.b@example.com");
+        Integer volunteerC = seedDemoVolunteer("陈川", "demo.volunteer.c@example.com");
+        seedDemoParticipation("鍛ㄦ湯绀惧尯鍔╄€侀櫔浼磋鍔?", volunteerA, 2);
+        seedDemoParticipation("鍩庡競鏂囨槑浜ら€氬紩瀵煎織鎰挎湇鍔?", volunteerB, 1);
+        seedDemoParticipation("鍩庡競鏂囨槑浜ら€氬紩瀵煎織鎰挎湇鍔?", volunteerC, 1);
+        seedDemoParticipation("渚挎皯鏈嶅姟鏃ュ挩璇㈠紩瀵?", volunteerA, 3);
+        seedDemoParticipationByRank(1, volunteerA, 2);
+        seedDemoParticipationByRank(2, volunteerB, 1);
+        seedDemoParticipationByRank(2, volunteerC, 1);
+        seedDemoParticipationByRank(4, volunteerA, 3);
+    }
+
+    private Integer seedDemoOrganization(String name, String description) {
+        Integer existingId = jdbcTemplate.query(
+            "SELECT organization_id FROM organizations WHERE organization_name = ? LIMIT 1",
+            resultSet -> resultSet.next() ? resultSet.getInt("organization_id") : null,
+            name
+        );
+        if (existingId != null) {
+            return existingId;
+        }
+
+        jdbcTemplate.update(
+            "INSERT INTO organizations (organization_name, organization_description, created_at) VALUES (?, ?, ?)",
+            name,
+            description,
+            LocalDateTime.now()
+        );
+        return jdbcTemplate.query(
+            "SELECT organization_id FROM organizations WHERE organization_name = ? LIMIT 1",
+            resultSet -> resultSet.next() ? resultSet.getInt("organization_id") : null,
+            name
+        );
+    }
+
+    private void seedDemoActivity(
+        Integer organizationId,
+        String activityName,
+        String description,
+        String location,
+        String categoryTags,
+        int startOffsetDays,
+        int durationDays,
+        int maxParticipants,
+        int currentParticipants,
+        int requestedRewardPoints,
+        int approvedRewardPoints,
+        String contactName,
+        String contactPhone,
+        Integer reviewerId
+    ) {
+        if (organizationId == null) {
+            return;
+        }
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM activities WHERE activity_name = ?",
+            Integer.class,
+            activityName
+        );
+        if (count != null && count > 0) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.plusDays(startOffsetDays).withHour(9).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endDate = startDate.plusDays(durationDays).withHour(17).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime enrollDeadline = startDate.minusDays(1).withHour(18).withMinute(0).withSecond(0).withNano(0);
+        String status = endDate.isBefore(now) ? "completed" : (startDate.isAfter(now) ? "pending" : "ongoing");
+
+        jdbcTemplate.update(
+            """
+                INSERT INTO activities (
+                    organization_id, activity_name, description, start_date, end_date, publish_date,
+                    location, contact_name, contact_phone, category_tags, max_participants,
+                    current_participants, enroll_deadline, created_by, requested_reward_points,
+                    approved_reward_points, review_status, review_note, reviewed_by, reviewed_at,
+                    status, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', '演示数据已审核通过', ?, ?, ?, ?, ?)
+                """,
+            organizationId,
+            activityName,
+            description,
+            startDate,
+            endDate,
+            now.minusDays(2),
+            location,
+            contactName,
+            contactPhone,
+            categoryTags,
+            maxParticipants,
+            currentParticipants,
+            enrollDeadline,
+            reviewerId,
+            requestedRewardPoints,
+            approvedRewardPoints,
+            reviewerId,
+            now.minusDays(2),
+            status,
+            now.minusDays(3),
+            now.minusDays(2)
+        );
+    }
+
+    private Integer seedDemoVolunteer(String username, String email) {
+        Integer existingId = jdbcTemplate.query(
+            "SELECT user_id FROM users WHERE email = ? LIMIT 1",
+            resultSet -> resultSet.next() ? resultSet.getInt("user_id") : null,
+            email
+        );
+        if (existingId != null) {
+            return existingId;
+        }
+
+        jdbcTemplate.update(
+            """
+                INSERT INTO users (username, password_hash, email, role, join_date, total_points)
+                VALUES (?, ?, ?, 'volunteer', ?, 0)
+                """,
+            username,
+            passwordEncoder.encode("Volunteer@123"),
+            email,
+            LocalDateTime.now()
+        );
+
+        Integer userId = jdbcTemplate.query(
+            "SELECT user_id FROM users WHERE email = ? LIMIT 1",
+            resultSet -> resultSet.next() ? resultSet.getInt("user_id") : null,
+            email
+        );
+        if (userId != null) {
+            rbacService.ensureUserPrimaryRole(userId, RoleConstants.VOLUNTEER);
+        }
+        return userId;
+    }
+
+    private void seedDemoParticipation(String activityName, Integer userId, int joinedDaysAgo) {
+        if (userId == null) {
+            return;
+        }
+        Integer activityId = jdbcTemplate.query(
+            "SELECT activity_id FROM activities WHERE activity_name = ? LIMIT 1",
+            resultSet -> resultSet.next() ? resultSet.getInt("activity_id") : null,
+            activityName
+        );
+        if (activityId == null) {
+            return;
+        }
+
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM activity_participation WHERE user_id = ? AND activity_id = ?",
+            Integer.class,
+            userId,
+            activityId
+        );
+        if (count != null && count > 0) {
+            return;
+        }
+
+        jdbcTemplate.update(
+            """
+                INSERT INTO activity_participation (user_id, activity_id, earned_points, participation_date)
+                VALUES (?, ?, 0, ?)
+                """,
+            userId,
+            activityId,
+            LocalDateTime.now().minusDays(joinedDaysAgo)
+        );
+    }
+
+    private void seedDemoParticipationByRank(int activityRank, Integer userId, int joinedDaysAgo) {
+        if (userId == null || activityRank <= 0) {
+            return;
+        }
+        Integer activityId = jdbcTemplate.query(
+            "SELECT activity_id FROM activities ORDER BY activity_id LIMIT 1 OFFSET ?",
+            resultSet -> resultSet.next() ? resultSet.getInt("activity_id") : null,
+            activityRank - 1
+        );
+        if (activityId == null) {
+            return;
+        }
+
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM activity_participation WHERE user_id = ? AND activity_id = ?",
+            Integer.class,
+            userId,
+            activityId
+        );
+        if (count != null && count > 0) {
+            return;
+        }
+
+        jdbcTemplate.update(
+            """
+                INSERT INTO activity_participation (user_id, activity_id, earned_points, participation_date)
+                VALUES (?, ?, 0, ?)
+                """,
+            userId,
+            activityId,
+            LocalDateTime.now().minusDays(joinedDaysAgo)
+        );
     }
 
     private void execute(String sql) {

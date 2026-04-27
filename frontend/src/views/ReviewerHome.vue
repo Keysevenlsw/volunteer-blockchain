@@ -112,7 +112,7 @@ async function loadProfile() {
   const token = getToken()
   if (!token) {
     clearAuth()
-    router.push('/login?role=admin')
+    router.push('/login')
     return
   }
   try {
@@ -122,7 +122,7 @@ async function loadProfile() {
   } catch (error) {
     clearAuth()
     ElMessage.error(error.message || '登录状态已失效')
-    router.push('/login?role=admin')
+    router.push('/login')
   }
 }
 

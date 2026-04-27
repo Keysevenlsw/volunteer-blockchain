@@ -5,31 +5,49 @@
         <div class="page-title-row">
           <div>
             <h1>志愿服务组织</h1>
-            <p>未登录可浏览公益组织信息；登录志愿者账号后可申请加入默认归属组织。</p>
+            <p>浏览公益组织信息，登录志愿者账号后可申请加入默认归属组织。</p>
           </div>
-          <el-button v-if="!isVolunteer" type="primary" @click="router.push('/login?role=volunteer')">志愿者登录后申请加入</el-button>
+          <el-button v-if="!isVolunteer" type="primary" @click="router.push('/login?role=volunteer')">登录后申请加入</el-button>
+        </div>
+
+        <div class="search-panel">
+          <el-input
+            v-model="searchKeyword"
+            size="large"
+            clearable
+            placeholder="搜索组织名称或服务介绍"
+            @keyup.enter="handleSearch"
+            @clear="handleSearch"
+          />
+          <el-button type="primary" size="large" :loading="loading" @click="handleSearch">搜索</el-button>
         </div>
 
         <div v-if="loading" class="portal-loading">正在加载组织...</div>
         <div v-else class="org-grid">
           <article v-for="org in organizations" :key="org.organizationId || org.organizationName" class="org-card">
-            <div class="org-avatar">
-              <img v-if="org.avatarPath" :src="resolveImage(org.avatarPath)" :alt="org.organizationName" />
-              <span v-else>{{ org.organizationName?.slice(0, 1) || '志' }}</span>
-            </div>
-            <div class="org-main">
-              <h2>{{ org.organizationName }}</h2>
-              <p>{{ org.organizationDescription || '该组织已参与平台志愿服务认证，更多公开信息将持续完善。' }}</p>
-              <div class="org-meta">
-                <span>公开服务记录：{{ org.projectCount || 0 }}</span>
-                <span>服务方向：社区服务 / 公益活动</span>
+            <div class="org-card__top">
+              <div class="org-avatar">
+                <img v-if="org.avatarPath" :src="resolveImage(org.avatarPath)" :alt="org.organizationName" />
+                <span v-else>{{ org.organizationName?.slice(0, 1) || '志' }}</span>
               </div>
+              <div>
+                <h2>{{ org.organizationName }}</h2>
+                <span>{{ org.publicActivityCount || org.projectCount || 0 }} 个公开活动</span>
+              </div>
+            </div>
+            <p>{{ org.organizationDescription || '该组织已参与平台志愿服务认证，更多公开信息将持续完善。' }}</p>
+            <div class="org-meta">
+              <el-tag effect="plain" size="small">社区服务</el-tag>
+              <el-tag effect="plain" size="small">公益活动</el-tag>
+              <el-tag effect="plain" size="small">志愿协同</el-tag>
+            </div>
+            <div class="org-actions">
               <el-button v-if="isVolunteer && org.organizationId" type="primary" plain @click="openJoinDialog(org)">申请加入组织</el-button>
               <el-button v-else type="primary" plain @click="router.push('/login?role=volunteer')">登录后申请加入</el-button>
             </div>
           </article>
         </div>
-        <EmptyState v-if="!loading && !organizations.length" mark="组" title="暂无组织信息" description="公益组织注册并产生公开服务记录后会在这里展示。" />
+        <EmptyState v-if="!loading && !organizations.length" mark="组" title="暂无匹配组织" description="换个关键词试试，或等待新的公益组织入驻。" />
       </div>
     </section>
 
@@ -56,8 +74,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
-import { getCompletedProjects } from '../api/public'
-import { createJoinRequest, getOrganizations } from '../api/platform'
+import { getPublicOrganizations } from '../api/public'
+import { createJoinRequest } from '../api/platform'
 import { getCachedUser, getToken, hasRole } from '../api/auth'
 
 const router = useRouter()
@@ -65,6 +83,8 @@ const user = ref(getCachedUser())
 const loading = ref(false)
 const submitting = ref(false)
 const organizations = ref([])
+const searchKeyword = ref('')
+const searchedKeyword = ref('')
 const joinDialogVisible = ref(false)
 const selectedOrganization = ref(null)
 const joinReason = ref('')
@@ -73,28 +93,18 @@ const isVolunteer = computed(() => !!getToken() && hasRole('volunteer', user.val
 
 onMounted(loadOrganizations)
 
+async function handleSearch() {
+  searchedKeyword.value = searchKeyword.value.trim()
+  await loadOrganizations()
+}
+
 async function loadOrganizations() {
   loading.value = true
   try {
-    if (getToken()) {
-      organizations.value = await getOrganizations()
-    } else {
-      const projects = await getCompletedProjects(30)
-      const grouped = new Map()
-      projects.forEach((project) => {
-        const name = project.organizationName || '公益组织'
-        const current = grouped.get(name) || {
-          organizationName: name,
-          organizationDescription: '该组织已有公开志愿服务成果，登录后可查看更多参与入口。',
-          projectCount: 0
-        }
-        current.projectCount += 1
-        grouped.set(name, current)
-      })
-      organizations.value = Array.from(grouped.values())
-    }
+    organizations.value = await getPublicOrganizations({ keyword: searchedKeyword.value })
   } catch (error) {
     organizations.value = []
+    ElMessage.error(error.message || '组织加载失败')
   } finally {
     loading.value = false
   }
@@ -148,7 +158,7 @@ function resolveImage(path) {
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .page-title-row h1 {
@@ -161,33 +171,58 @@ function resolveImage(path) {
   color: #777;
 }
 
+.search-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid rgba(223, 0, 27, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(161, 43, 61, 0.06);
+}
+
 .org-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
 }
 
 .org-card {
-  display: grid;
-  grid-template-columns: 88px 1fr;
-  gap: 20px;
-  padding: 24px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
   border: 1px solid rgba(223, 0, 27, 0.12);
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 12px 28px rgba(161, 43, 61, 0.06);
+  box-shadow: 0 14px 30px rgba(161, 43, 61, 0.07);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.org-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 42px rgba(161, 43, 61, 0.12);
+}
+
+.org-card__top {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 16px;
+  align-items: center;
 }
 
 .org-avatar {
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   display: grid;
   place-items: center;
   overflow: hidden;
   border-radius: 8px;
   background: linear-gradient(135deg, #ffe2e5, #fff3e8);
   color: #df001b;
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 700;
 }
 
@@ -197,37 +232,50 @@ function resolveImage(path) {
   object-fit: cover;
 }
 
-.org-main h2 {
+.org-card h2 {
   margin: 0;
-  font-size: 22px;
+  color: #2f1e23;
+  font-size: 21px;
+  line-height: 1.35;
 }
 
-.org-main p {
-  min-height: 50px;
-  margin: 12px 0 0;
+.org-card__top span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #888;
+  font-size: 13px;
+}
+
+.org-card p {
+  min-height: 78px;
+  margin: 18px 0 0;
   color: #666;
   line-height: 1.7;
 }
 
 .org-meta {
   display: flex;
-  gap: 18px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin: 16px 0;
-  color: #777;
-  font-size: 13px;
+  margin-top: 16px;
 }
 
-@media (max-width: 900px) {
-  .page-title-row,
+.org-actions {
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+@media (max-width: 1100px) {
   .org-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
-  .org-card {
+@media (max-width: 700px) {
+  .page-title-row,
+  .org-grid,
+  .search-panel {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }

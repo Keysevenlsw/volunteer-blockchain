@@ -27,7 +27,7 @@
             <span class="portal-separator"></span>
             <button type="button" class="portal-link" @click="router.push('/register?role=organization_admin')">志愿组织注册</button>
           </template>
-          <button type="button" class="portal-search" aria-label="搜索">⌕</button>
+          <button type="button" class="portal-search" aria-label="搜索">搜</button>
         </div>
       </div>
     </header>
@@ -65,7 +65,7 @@
               <span class="portal-separator"></span>
               <button type="button" class="portal-link" @click="router.push('/register?role=organization_admin')">志愿组织注册</button>
             </template>
-            <button type="button" class="portal-search" aria-label="搜索">⌕</button>
+            <button type="button" class="portal-search" aria-label="搜索">搜</button>
           </div>
         </div>
       </header>
@@ -85,11 +85,24 @@
     </div>
 
     <main class="portal-body">
-      <div v-if="props.breadcrumb" class="portal-shell portal-breadcrumb">
-        <span>当前位置：</span>
-        <RouterLink to="/">首页</RouterLink>
-        <span>›</span>
-        <strong>{{ props.breadcrumb }}</strong>
+      <div v-if="hasBreadcrumb" class="portal-shell portal-breadcrumb">
+        <div class="portal-breadcrumb__trail">
+          <span>当前位置：</span>
+          <RouterLink to="/">首页</RouterLink>
+          <template v-for="(item, index) in resolvedBreadcrumbItems" :key="`${item}-${index}`">
+            <span class="portal-breadcrumb__sep">></span>
+            <strong v-if="index === resolvedBreadcrumbItems.length - 1">{{ item }}</strong>
+            <span v-else>{{ item }}</span>
+          </template>
+        </div>
+        <el-button
+          v-if="props.breadcrumbBackText"
+          text
+          class="portal-breadcrumb__back"
+          @click="router.back()"
+        >
+          {{ props.breadcrumbBackText }}
+        </el-button>
       </div>
       <slot />
     </main>
@@ -112,6 +125,14 @@ const props = defineProps({
     default: 'home'
   },
   breadcrumb: {
+    type: String,
+    default: ''
+  },
+  breadcrumbItems: {
+    type: Array,
+    default: () => []
+  },
+  breadcrumbBackText: {
     type: String,
     default: ''
   }
@@ -156,6 +177,15 @@ const workspaceText = computed(() => {
   }
   return '个人中心'
 })
+
+const resolvedBreadcrumbItems = computed(() => {
+  if (props.breadcrumbItems.length) {
+    return props.breadcrumbItems
+  }
+  return props.breadcrumb ? [props.breadcrumb] : []
+})
+
+const hasBreadcrumb = computed(() => resolvedBreadcrumbItems.value.length > 0)
 
 onMounted(() => {
   loadSession()
@@ -306,67 +336,12 @@ function setLastBannerMode(mode) {
   transform: translateY(0) scaleY(1);
 }
 
-.portal-hero--morphing .portal-hero__bg--full,
-.portal-hero--morphing .portal-hero__bg--compact {
-  transition-duration: 0.5s;
-}
-
 .portal-hero--flipping {
   transform-style: preserve-3d;
 }
 
 .portal-hero--flipping .portal-hero__bg {
   transition-duration: 0.52s;
-}
-
-.portal-hero--flip-up:not(.portal-hero--compact) .portal-hero__bg--full {
-  opacity: 1;
-  transform-origin: top center;
-  transform: translateY(0) rotateX(0deg) scaleY(1);
-}
-
-.portal-hero--flip-up:not(.portal-hero--compact) .portal-hero__bg--compact {
-  opacity: 0;
-  transform-origin: top center;
-  transform: translateY(46%) rotateX(76deg) scaleY(0.94);
-}
-
-.portal-hero--flip-up.portal-hero--compact .portal-hero__bg--full {
-  opacity: 0;
-  filter: blur(0.6px);
-  transform-origin: top center;
-  transform: translateY(-54%) rotateX(-78deg) scaleY(0.74);
-}
-
-.portal-hero--flip-up.portal-hero--compact .portal-hero__bg--compact {
-  opacity: 1;
-  transform-origin: top center;
-  transform: translateY(0) rotateX(0deg) scaleY(1);
-}
-
-.portal-hero--flip-down.portal-hero--compact .portal-hero__bg--compact {
-  opacity: 1;
-  transform-origin: bottom center;
-  transform: translateY(0) rotateX(0deg) scaleY(1);
-}
-
-.portal-hero--flip-down.portal-hero--compact .portal-hero__bg--full {
-  opacity: 0;
-  transform-origin: bottom center;
-  transform: translateY(-42%) rotateX(74deg) scaleY(0.72);
-}
-
-.portal-hero--flip-down:not(.portal-hero--compact) .portal-hero__bg--full {
-  opacity: 1;
-  transform-origin: bottom center;
-  transform: translateY(0) rotateX(0deg) scaleY(1);
-}
-
-.portal-hero--flip-down:not(.portal-hero--compact) .portal-hero__bg--compact {
-  opacity: 0;
-  filter: blur(0.4px);
-  transform-origin: bottom center;
-  transform: translateY(58%) rotateX(-76deg) scaleY(0.82);
 }
 
 .portal-hero__inner {
@@ -400,7 +375,6 @@ function setLastBannerMode(mode) {
   color: #222;
   font-size: 15px;
   z-index: 3;
-  transition: top 0.52s cubic-bezier(0.25, 0.9, 0.25, 1);
 }
 
 .portal-hero--compact .portal-userbar {
@@ -436,7 +410,7 @@ function setLastBannerMode(mode) {
   background: #df001b;
   color: #fff;
   cursor: pointer;
-  font-size: 34px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -499,14 +473,30 @@ function setLastBannerMode(mode) {
 .portal-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 18px;
   padding: 24px 0 20px;
   color: #555;
   font-size: 15px;
 }
 
+.portal-breadcrumb__trail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-breadcrumb__sep {
+  color: #bdbdbd;
+}
+
 .portal-breadcrumb strong {
   color: #555;
+}
+
+.portal-breadcrumb__back {
+  flex: 0 0 auto;
+  color: #d8001b;
 }
 
 @media (max-width: 1200px) {
@@ -546,6 +536,11 @@ function setLastBannerMode(mode) {
   .portal-nav__item {
     min-width: 96px;
     font-size: 15px;
+  }
+
+  .portal-breadcrumb {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

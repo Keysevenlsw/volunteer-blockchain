@@ -28,6 +28,7 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String TYPE_EARNED = "earned";
     private static final String TYPE_SPENT = "spent";
+    private static final String TYPE_REFUND = "refund";
 
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -35,8 +36,8 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
     @Value("${webase.front-url:}")
     private String webaseFrontUrl;
 
-    @Value("${webase.group-id:1}")
-    private Integer groupId;
+    @Value("${webase.group-id:group0}")
+    private String groupId;
 
     @Value("${webase.user-address:}")
     private String userAddress;
@@ -66,7 +67,7 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
 
     @Override
     public PointChainResult refundPoints(PointChainRequest request) {
-        return writePoints("refundPoints", TYPE_EARNED, request);
+        return writePoints("refundPoints", TYPE_REFUND, request);
     }
 
     @Override
@@ -85,26 +86,19 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
         String normalizedBizKey = trimRequired(bizKey, "bizKey is required");
         Object data = invokeContract("getTransaction", List.of(normalizedBizKey));
         List<Object> values = flattenValues(data);
-        if (values.size() < 11) {
-            return new PointChainTransaction(false, normalizedBizKey, null, null, null, null, null, null, null, null, null, null);
+        if (values.size() < 4) {
+            return new PointChainTransaction(false, normalizedBizKey, null, null, null);
         }
-        String status = valueAsString(values.get(10));
-        if (!"stored".equals(status)) {
-            return new PointChainTransaction(false, normalizedBizKey, null, null, null, null, null, null, null, null, null, null);
+        Boolean exists = parseBoolean(values.get(3));
+        if (!Boolean.TRUE.equals(exists)) {
+            return new PointChainTransaction(false, normalizedBizKey, null, null, null);
         }
         return new PointChainTransaction(
             true,
             normalizedBizKey,
             parseInteger(values.get(0)),
             parseInteger(values.get(1)),
-            parseInteger(values.get(2)),
-            valueAsString(values.get(3)),
-            valueAsString(values.get(4)),
-            valueAsString(values.get(5)),
-            valueAsString(values.get(6)),
-            valueAsString(values.get(7)),
-            valueAsString(values.get(8)),
-            parseInteger(values.get(9))
+            parseInteger(values.get(2))
         );
     }
 
@@ -156,14 +150,16 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
                 .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            Map<String, Object> payload = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {
-            });
-            Object code = payload.get("code");
-            if (!isSuccessCode(code)) {
-                String message = String.valueOf(payload.getOrDefault("message", "WeBASE points contract call failed"));
-                throw new BusinessException(message);
+            Object payload = objectMapper.readValue(response.body(), Object.class);
+            if (payload instanceof Map<?, ?> map) {
+                Object code = map.get("code");
+                if (!isSuccessCode(code)) {
+                    Object message = map.containsKey("message") ? map.get("message") : map.get("errorMessage");
+                    throw new BusinessException(String.valueOf(message == null ? "WeBASE points contract call failed" : message));
+                }
+                return map.containsKey("data") ? map.get("data") : map;
             }
-            return payload.containsKey("data") ? payload.get("data") : payload;
+            return payload;
         } catch (IOException | InterruptedException ex) {
             if (ex instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
@@ -214,8 +210,9 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
         }
     }
 
-    private String readContractAbi() throws IOException {
-        return new String(pointsContractAbiResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    private Object readContractAbi() throws IOException {
+        String abiJson = new String(pointsContractAbiResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        return objectMapper.readValue(abiJson, Object.class);
     }
 
     private String findString(Object value, String... keys) {
@@ -325,6 +322,28 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
                 return new BigInteger(trimmed).intValue();
             } catch (NumberFormatException ex) {
                 return null;
+            }
+        }
+        return null;
+    }
+
+    private Boolean parseBoolean(Object value) {
+        if (value instanceof Boolean bool) {
+            return bool;
+        }
+        if (value instanceof Number number) {
+            return number.intValue() != 0;
+        }
+        if (value instanceof String text) {
+            String trimmed = text.trim();
+            if (trimmed.isEmpty()) {
+                return null;
+            }
+            if ("true".equalsIgnoreCase(trimmed) || "1".equals(trimmed)) {
+                return true;
+            }
+            if ("false".equalsIgnoreCase(trimmed) || "0".equals(trimmed)) {
+                return false;
             }
         }
         return null;

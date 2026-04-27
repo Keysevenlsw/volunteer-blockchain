@@ -77,16 +77,9 @@
     "name": "getTransaction",
     "outputs": [
       { "name": "userId", "type": "uint256" },
-      { "name": "organizationId", "type": "uint256" },
       { "name": "pointsDelta", "type": "int256" },
-      { "name": "transactionType", "type": "string" },
-      { "name": "source", "type": "string" },
-      { "name": "referenceType", "type": "string" },
-      { "name": "referenceId", "type": "string" },
-      { "name": "digest", "type": "string" },
-      { "name": "createdAt", "type": "string" },
       { "name": "balanceAfter", "type": "uint256" },
-      { "name": "status", "type": "string" }
+      { "name": "exists", "type": "bool" }
     ],
     "payable": false,
     "stateMutability": "view",

@@ -41,14 +41,7 @@ public interface PointBlockchainService {
         boolean exists,
         String bizKey,
         Integer userId,
-        Integer organizationId,
         Integer pointsDelta,
-        String transactionType,
-        String source,
-        String referenceType,
-        String referenceId,
-        String digest,
-        String createdAt,
         Integer balanceAfter
     ) {
     }

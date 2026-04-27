@@ -11,6 +11,7 @@
           </div>
           <div class="auth-visual__city"></div>
         </div>
+
         <div class="auth-panel">
           <div class="auth-tabs">
             <button
@@ -18,32 +19,44 @@
               :key="item.key"
               type="button"
               :class="{ active: activeRole === item.key }"
-              @click="activeRole = item.key"
+              @click="setActiveRole(item.key)"
             >
               {{ item.label }}
             </button>
           </div>
 
+          <div class="auth-title">
+            <strong>{{ activeRole === 'organization_admin' ? '志愿组织登录' : '志愿者登录' }}</strong>
+          </div>
+
           <el-form class="auth-form" label-position="top" @submit.prevent>
             <el-form-item label="登录邮箱">
-              <el-input v-model="form.email" placeholder="请输入登录邮箱" clearable />
+              <el-input
+                v-model="form.email"
+                placeholder="请输入登录邮箱"
+                clearable
+                autocomplete="username"
+              />
             </el-form-item>
             <el-form-item label="密码">
-              <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password clearable @keyup.enter="handleLogin" />
+              <el-input
+                v-model="form.password"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+                clearable
+                autocomplete="current-password"
+                @keyup.enter="handleLogin"
+              />
             </el-form-item>
-            <el-form-item label="验证码">
-              <div class="captcha-row">
-                <el-input v-model="form.captcha" placeholder="请输入验证码" clearable />
-                <div class="captcha-code">Y7M8</div>
-              </div>
-            </el-form-item>
-            <el-button type="primary" class="auth-submit" :loading="loading" @click="handleLogin">登 录</el-button>
+            <el-button type="primary" class="auth-submit" :loading="loading" @click="handleLogin">
+              登录
+            </el-button>
           </el-form>
 
           <div class="auth-links">
-            <RouterLink to="/register?role=volunteer">立即注册</RouterLink>
-            <button type="button" @click="ElMessage.info('账号查询功能需要后端接口支持')">账号查询</button>
-            <button type="button" @click="ElMessage.info('忘记密码功能需要后端接口支持')">忘记密码?</button>
+            <RouterLink :to="registerLink">立即注册</RouterLink>
+            <button type="button" @click="ElMessage.info('请联系平台管理员重置密码')">忘记密码？</button>
           </div>
         </div>
       </div>
@@ -52,7 +65,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import PortalLayout from '../components/PortalLayout.vue'
@@ -64,15 +77,18 @@ const loading = ref(false)
 const activeRole = ref(normalizeRole(route.query.role))
 const form = reactive({
   email: '',
-  password: '',
-  captcha: ''
+  password: ''
 })
 
 const loginTabs = [
   { key: 'volunteer', label: '志愿者登录' },
-  { key: 'organization_admin', label: '志愿组织登录' },
-  { key: 'admin', label: '管理员/审核员登录' }
+  { key: 'organization_admin', label: '志愿组织登录' }
 ]
+
+const registerLink = computed(() => ({
+  path: '/register',
+  query: { role: activeRole.value === 'organization_admin' ? 'organization_admin' : 'volunteer' }
+}))
 
 watch(
   () => route.query.role,
@@ -85,26 +101,35 @@ function normalizeRole(value) {
   if (value === 'organization_admin') {
     return 'organization_admin'
   }
-  if (value === 'admin' || value === 'system_admin' || value === 'activity_reviewer' || value === 'product_reviewer') {
-    return 'admin'
-  }
   return 'volunteer'
 }
 
+function setActiveRole(role) {
+  activeRole.value = normalizeRole(role)
+  router.replace({
+    path: '/login',
+    query: activeRole.value === 'organization_admin' ? { role: 'organization_admin' } : {}
+  })
+}
+
+function isAdminLike(user) {
+  return hasRole('system_admin', user) || hasRole('activity_reviewer', user) || hasRole('product_reviewer', user)
+}
+
+function isVolunteerLike(user) {
+  return hasRole('volunteer', user)
+}
+
 function roleAllowed(user) {
-  if (activeRole.value === 'admin') {
-    return hasRole('system_admin', user) || hasRole('activity_reviewer', user) || hasRole('product_reviewer', user)
+  if (activeRole.value === 'organization_admin') {
+    return hasRole('organization_admin', user)
   }
-  return hasRole(activeRole.value, user)
+  return isAdminLike(user) || isVolunteerLike(user)
 }
 
 async function handleLogin() {
   if (!form.email || !form.password) {
     ElMessage.warning('请填写登录邮箱和密码')
-    return
-  }
-  if (!form.captcha) {
-    ElMessage.warning('请输入验证码')
     return
   }
 
@@ -140,9 +165,10 @@ async function handleLogin() {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) 440px;
   overflow: hidden;
+  border: 1px solid rgba(223, 0, 27, 0.06);
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 18px 38px rgba(161, 43, 61, 0.08);
+  box-shadow: 0 22px 48px rgba(144, 47, 56, 0.1);
 }
 
 .auth-visual {
@@ -150,8 +176,8 @@ async function handleLogin() {
   min-height: 508px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 55% 18%, rgba(255, 205, 214, 0.42), transparent 10%),
-    linear-gradient(180deg, #f3f4ff 0%, #fff7f0 78%);
+    linear-gradient(180deg, #f6f5ff 0%, #fff8f1 76%),
+    linear-gradient(90deg, rgba(223, 0, 27, 0.06), rgba(255, 149, 83, 0.08));
 }
 
 .auth-visual::before {
@@ -171,6 +197,7 @@ async function handleLogin() {
   height: 54px;
   border-radius: 50%;
   background: rgba(255, 158, 143, 0.34);
+  box-shadow: 0 22px 60px rgba(223, 0, 27, 0.08);
 }
 
 .auth-visual__city {
@@ -204,6 +231,7 @@ async function handleLogin() {
   height: 104px;
   border-radius: 22px 22px 8px 8px;
   background: linear-gradient(180deg, #ff3e7a, #ffb23d);
+  box-shadow: 0 16px 28px rgba(223, 0, 27, 0.14);
 }
 
 .auth-visual__people span:nth-child(1) {
@@ -217,85 +245,120 @@ async function handleLogin() {
 }
 
 .auth-panel {
-  padding: 34px 38px;
+  padding: 34px 38px 38px;
+  background: linear-gradient(180deg, #ffffff 0%, #fffafa 100%);
 }
 
 .auth-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  margin: 0 -38px 26px;
-  border-bottom: 1px solid #eee;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 26px;
+  padding: 6px;
+  border: 1px solid rgba(223, 0, 27, 0.08);
+  border-radius: 8px;
+  background: #fff5f6;
 }
 
 .auth-tabs button {
   position: relative;
-  height: 54px;
+  height: 50px;
   border: 0;
-  background: #fff;
-  color: #666;
+  border-radius: 8px;
+  background: transparent;
+  color: #77656a;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
 .auth-tabs button.active {
-  color: #111;
+  background: #fff;
+  color: #1f1a1b;
+  box-shadow: 0 12px 24px rgba(183, 45, 56, 0.12);
+}
+
+.auth-title {
+  display: grid;
+  margin-bottom: 18px;
+}
+
+.auth-title strong {
+  color: #221719;
+  font-size: 22px;
+}
+
+.auth-form :deep(.el-form-item) {
+  margin-bottom: 20px;
+}
+
+.auth-form :deep(.el-form-item__label) {
+  padding-bottom: 9px;
+  color: #5c454b;
+  font-size: 14px;
   font-weight: 700;
 }
 
-.auth-tabs button.active::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 34px;
-  height: 3px;
-  background: #df001b;
-  transform: translateX(-50%);
-}
-
-.captcha-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 130px;
-  gap: 12px;
-}
-
-.captcha-code {
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #e2e2e2;
+.auth-form :deep(.el-input__wrapper) {
+  min-height: 46px;
+  padding: 0 14px;
   border-radius: 8px;
-  background: #f7fff5;
-  color: #577352;
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #fffafa 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(159, 83, 92, 0.18),
+    0 10px 22px rgba(73, 34, 40, 0.04);
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.auth-form :deep(.el-input__wrapper:hover) {
+  box-shadow:
+    inset 0 0 0 1px rgba(223, 0, 27, 0.28),
+    0 12px 24px rgba(73, 34, 40, 0.06);
+}
+
+.auth-form :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    inset 0 0 0 1px rgba(223, 0, 27, 0.5),
+    0 0 0 4px rgba(223, 0, 27, 0.08),
+    0 14px 28px rgba(73, 34, 40, 0.08);
+  transform: translateY(-1px);
 }
 
 .auth-submit {
   width: 100%;
-  height: 46px;
+  height: 48px;
   margin-top: 4px;
-  background: #df001b;
-  border-color: #df001b;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #df001b 0%, #f04b42 100%);
+  box-shadow: 0 16px 28px rgba(223, 0, 27, 0.22);
+}
+
+.auth-submit:hover,
+.auth-submit:focus {
+  background: linear-gradient(135deg, #c90018 0%, #e43e35 100%);
 }
 
 .auth-links {
   display: flex;
   justify-content: center;
-  gap: 36px;
-  margin-top: 20px;
+  gap: 34px;
+  margin-top: 22px;
 }
 
 .auth-links a,
 .auth-links button {
   border: 0;
   background: transparent;
-  color: #666;
+  color: #6f6064;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
+}
+
+.auth-links a:hover,
+.auth-links button:hover {
+  color: #df001b;
 }
 
 @media (max-width: 960px) {
@@ -305,6 +368,12 @@ async function handleLogin() {
 
   .auth-visual {
     min-height: 260px;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-panel {
+    padding: 26px 20px 30px;
   }
 }
 </style>

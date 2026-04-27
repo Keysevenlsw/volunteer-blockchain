@@ -34,6 +34,31 @@ public class PublicController {
         return ApiResponse.success(publicService.getCompletedProjects(limit));
     }
 
+    @GetMapping("/activities")
+    public ApiResponse<List<PlatformVOs.ActivityVO>> activities(
+        @RequestParam(value = "keyword", required = false) String keyword,
+        @RequestParam(value = "limit", defaultValue = "60") Integer limit
+    ) {
+        return ApiResponse.success(publicService.listPublicActivities(keyword, limit));
+    }
+
+    @GetMapping("/activities/{id}")
+    public ApiResponse<PlatformVOs.ActivityVO> activityDetail(@PathVariable Integer id) {
+        return ApiResponse.success(publicService.getPublicActivity(id));
+    }
+
+    @GetMapping("/activities/{id}/registrations")
+    public ApiResponse<List<PlatformVOs.ActivityRegistrationVO>> activityRegistrations(@PathVariable Integer id) {
+        return ApiResponse.success(publicService.listPublicActivityRegistrations(id));
+    }
+
+    @GetMapping("/organizations")
+    public ApiResponse<List<PlatformVOs.OrganizationVO>> organizations(
+        @RequestParam(value = "keyword", required = false) String keyword
+    ) {
+        return ApiResponse.success(publicService.listPublicOrganizations(keyword));
+    }
+
     @GetMapping("/evidences")
     public ApiResponse<List<PlatformVOs.EvidenceVO>> evidences(
         @RequestParam(value = "limit", defaultValue = "20") Integer limit,

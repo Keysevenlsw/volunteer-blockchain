@@ -1,110 +1,176 @@
 <template>
   <PortalLayout :active-key="pageActiveKey" :breadcrumb="isRewardsPanel ? '积分商城' : '志愿活动'">
-    <section class="list-page">
+    <section class="activity-page">
       <div class="portal-shell">
-        <div class="page-title-row">
-          <div>
-            <h1>{{ isRewardsPanel ? '积分商城' : '志愿服务活动' }}</h1>
-            <p>{{ isRewardsPanel ? '未登录可查看兑换说明；登录志愿者账号后可使用公益积分兑换。' : '未登录可浏览公开活动信息；登录志愿者账号后可报名、取消报名和提交服务报告。' }}</p>
-          </div>
-          <div class="page-actions">
-            <el-button :type="isRewardsPanel ? 'default' : 'primary'" @click="router.push('/activities')">志愿活动</el-button>
-            <el-button :type="isRewardsPanel ? 'primary' : 'default'" @click="router.push('/activities?panel=rewards')">积分商城</el-button>
-            <el-button v-if="!isVolunteer" type="primary" plain @click="router.push('/login?role=volunteer')">志愿者登录后参与</el-button>
-          </div>
-        </div>
-
         <template v-if="isRewardsPanel">
+          <div class="page-title-row">
+            <div>
+              <h1>积分商城</h1>
+              <p>登录志愿者账号后可使用公益积分兑换。</p>
+            </div>
+            <div class="page-actions">
+              <el-button @click="router.push('/activities')">志愿活动</el-button>
+              <el-button type="primary" @click="router.push('/activities?panel=rewards')">积分商城</el-button>
+            </div>
+          </div>
+
           <div v-if="productLoading" class="portal-loading">正在加载积分商品...</div>
-          <div v-else class="activity-grid">
-            <article v-for="product in products" :key="product.productId" class="activity-card">
-              <div class="activity-cover">
+          <div v-else class="product-grid">
+            <article v-for="product in products" :key="product.productId" class="product-card">
+              <div class="product-cover">
                 <img v-if="product.imagePath" :src="resolveImage(product.imagePath)" :alt="product.productName" />
                 <span v-else>积分商品</span>
               </div>
-              <div class="activity-body">
-                <div class="card-topline">
-                  <StatusBadge :label="`${product.price} 积分`" tone="primary" />
-                  <span>{{ product.organizationName || '公益组织' }}</span>
-                </div>
+              <div class="product-body">
+                <StatusBadge :label="`${product.price} 积分`" tone="primary" />
                 <h2>{{ product.productName }}</h2>
                 <p>{{ product.productDescription || '暂无商品说明' }}</p>
-                <dl class="meta-list">
-                  <div><dt>库存</dt><dd>{{ product.stock }}</dd></div>
-                  <div><dt>状态</dt><dd>{{ getStatusMeta('review', product.reviewStatus).label }}</dd></div>
-                </dl>
-                <div class="card-actions">
-                  <el-button v-if="isVolunteer" type="primary" :disabled="product.stock <= 0" @click="handleRedeem(product)">立即兑换</el-button>
-                  <el-button v-else type="primary" plain @click="router.push('/login?role=volunteer')">登录后兑换</el-button>
-                </div>
+                <el-button v-if="isVolunteer" type="primary" :disabled="product.stock <= 0" @click="handleRedeem(product)">立即兑换</el-button>
+                <el-button v-else type="primary" plain @click="router.push('/login?role=volunteer')">登录后兑换</el-button>
               </div>
             </article>
           </div>
           <EmptyState v-if="!productLoading && !products.length" mark="兑" title="暂无可兑换商品" description="商品审核通过后会进入统一积分商城。" />
         </template>
 
-        <div v-else-if="loading" class="portal-loading">正在加载活动...</div>
-        <div v-else class="activity-grid">
-          <article v-for="activity in activities" :key="activity.activityId || activity.id" class="activity-card">
-            <div class="activity-cover">
-              <img v-if="activity.imagePath || activity.image" :src="resolveImage(activity.imagePath || activity.image)" :alt="activity.activityName || activity.title" />
-              <span v-else>志愿活动</span>
-            </div>
-            <div class="activity-body">
-              <div class="card-topline">
-                <StatusBadge :label="activity.reviewStatus ? getStatusMeta('review', activity.reviewStatus).label : '公开展示'" :tone="activity.reviewStatus ? getStatusMeta('review', activity.reviewStatus).tone : 'success'" />
-                <span>{{ activity.organizationName || '公益组织' }}</span>
-              </div>
-              <h2>{{ activity.activityName || activity.title }}</h2>
-              <p>{{ activity.description || '暂无活动说明' }}</p>
-              <dl class="meta-list">
-                <div><dt>地点</dt><dd>{{ activity.location || '待公布' }}</dd></div>
-                <div><dt>时间</dt><dd>{{ formatDateTime(activity.startDate || activity.endDate) }}</dd></div>
-                <div><dt>名额</dt><dd>{{ activity.currentParticipants ?? 0 }} / {{ activity.maxParticipants ?? '-' }}</dd></div>
-                <div><dt>积分</dt><dd>{{ activity.approvedRewardPoints ?? activity.requestedRewardPoints ?? '-' }}</dd></div>
-              </dl>
-              <div class="card-actions">
-                <template v-if="isVolunteer && activity.activityId">
-                  <el-button type="primary" plain :disabled="activity.joined" @click="handleJoin(activity)">报名活动</el-button>
-                  <el-button :disabled="!activity.joined" @click="handleCancel(activity)">取消报名</el-button>
-                  <el-button type="success" :disabled="!activity.joined" @click="openCompletionDialog(activity)">提交服务报告</el-button>
-                </template>
-                <el-button v-else type="primary" plain @click="router.push('/login?role=volunteer')">登录后报名</el-button>
+        <template v-else>
+          <div class="filter-panel">
+            <div class="filter-row">
+              <strong>活动类别:</strong>
+              <div class="filter-options">
+                <button
+                  v-for="category in categories"
+                  :key="category"
+                  type="button"
+                  :class="{ active: filters.category === category }"
+                  @click="filters.category = category"
+                >
+                  {{ category }}
+                </button>
               </div>
             </div>
-          </article>
-        </div>
-        <EmptyState v-if="!isRewardsPanel && !loading && !activities.length" mark="活" title="暂无公开活动" description="已审核活动或服务公示会在这里展示。" />
+
+            <template v-if="moreExpanded">
+              <div class="filter-row">
+                <strong>报名情况:</strong>
+                <div class="filter-options">
+                  <button
+                    v-for="status in signupStatuses"
+                    :key="status"
+                    type="button"
+                    :class="{ active: filters.signupStatus === status }"
+                    @click="filters.signupStatus = status"
+                  >
+                    {{ status }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="filter-row filter-row--compact">
+                <strong>积分范围:</strong>
+                <div class="compact-group">
+                  <el-input v-model="filters.minPoints" placeholder="最低积分" clearable />
+                  <span>至</span>
+                  <el-input v-model="filters.maxPoints" placeholder="最高积分" clearable />
+                </div>
+              </div>
+
+              <div class="filter-row filter-row--compact">
+                <strong>年龄:</strong>
+                <div class="compact-group">
+                  <el-input v-model="filters.minAge" placeholder="请输入" clearable />
+                  <span>至</span>
+                  <el-input v-model="filters.maxAge" placeholder="请输入" clearable />
+                </div>
+              </div>
+            </template>
+
+            <div class="more-line">
+              <button type="button" @click="moreExpanded = !moreExpanded">
+                {{ moreExpanded ? '收起' : '更多条件' }}
+              </button>
+            </div>
+
+            <div class="query-panel">
+              <div class="query-item">
+                <label>活动日期</label>
+                <div class="query-range">
+                  <el-date-picker v-model="filters.startDate" type="date" value-format="YYYY-MM-DD" placeholder="" />
+                  <span>至</span>
+                  <el-date-picker v-model="filters.endDate" type="date" value-format="YYYY-MM-DD" placeholder="" />
+                </div>
+              </div>
+
+              <div class="query-item query-item--keyword">
+                <label>活动名称</label>
+                <el-input
+                  v-model="searchKeyword"
+                  placeholder="请输入关键词"
+                  clearable
+                  @keyup.enter="handleSearch"
+                />
+              </div>
+
+              <div class="query-actions">
+                <el-button type="primary" :loading="loading" @click="handleSearch">查询</el-button>
+                <el-button class="reset-button" @click="resetSearch">重置</el-button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="loading" class="portal-loading">正在加载活动...</div>
+          <div v-else class="project-grid">
+            <article
+              v-for="activity in visibleActivities"
+              :key="activity.activityId"
+              class="project-card"
+              role="button"
+              tabindex="0"
+              @click="goDetail(activity)"
+              @keyup.enter="goDetail(activity)"
+            >
+              <div class="project-card__top">
+                <div class="project-image">
+                  <span class="project-label">{{ firstTag(activity) }}</span>
+                  <img v-if="activity.imagePath" :src="resolveImage(activity.imagePath)" :alt="activity.activityName" />
+                  <div v-else class="project-placeholder" :class="placeholderClass(activity)">
+                    <span>{{ placeholderIcon(activity) }}</span>
+                  </div>
+                </div>
+
+                <div class="project-main">
+                  <h2 :title="activity.activityName">{{ activity.activityName }}</h2>
+                  <div class="project-stats">
+                    <div>
+                      <span>积分:</span>
+                      <strong>{{ activity.approvedRewardPoints ?? activity.requestedRewardPoints ?? 0 }}</strong>
+                    </div>
+                    <div>
+                      <span>岗位</span>
+                      <strong>{{ availableSlots(activity) }}个</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="project-meta">
+                <p :title="`活动日期：${formatDateOnly(activity.startDate)} 至 ${formatDateOnly(activity.endDate)}`">
+                  活动日期：{{ formatDateOnly(activity.startDate) }} 至 {{ formatDateOnly(activity.endDate) }}
+                </p>
+                <p :title="`招募时间：${formatDateTime(activity.publishDate)} 至 ${formatDateTime(activity.enrollDeadline)}`">
+                  招募时间：{{ formatDateTime(activity.publishDate) }} 至 {{ formatDateTime(activity.enrollDeadline) }}
+                </p>
+                <p :title="`活动地点：${activity.location || '待公布'}`">
+                  活动地点：{{ activity.location || '待公布' }}
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <EmptyState v-if="!loading && !visibleActivities.length" mark="活" title="暂无匹配活动" description="换个条件试试，或等待组织发布新的公开活动。" />
+        </template>
       </div>
     </section>
-
-    <el-dialog v-model="completionDialogVisible" title="提交服务报告" width="min(760px, calc(100vw - 24px))">
-      <el-form label-position="top">
-        <el-form-item label="活动名称"><el-input :model-value="completionForm.activityName" disabled /></el-form-item>
-        <el-row :gutter="12">
-          <el-col :xs="24" :md="12">
-            <el-form-item label="服务地点"><el-input v-model="completionForm.serviceLocation" placeholder="请输入服务地点" /></el-form-item>
-          </el-col>
-          <el-col :xs="24" :md="12">
-            <el-form-item label="附件上传">
-              <el-upload action="#" :http-request="handleUpload" :file-list="uploadFiles" :on-remove="handleUploadRemove">
-                <el-button type="primary" plain>上传附件</el-button>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="12">
-          <el-col :xs="24" :md="12"><el-form-item label="开始时间"><el-date-picker v-model="completionForm.serviceStartTime" type="datetime" value-format="YYYY-MM-DDTHH:mm:ss" style="width: 100%" /></el-form-item></el-col>
-          <el-col :xs="24" :md="12"><el-form-item label="结束时间"><el-date-picker v-model="completionForm.serviceEndTime" type="datetime" value-format="YYYY-MM-DDTHH:mm:ss" style="width: 100%" /></el-form-item></el-col>
-        </el-row>
-        <el-form-item label="工作总结"><el-input v-model="completionForm.reportText" type="textarea" :rows="4" /></el-form-item>
-        <el-form-item label="贡献内容"><el-input v-model="completionForm.contributionDetails" type="textarea" :rows="4" /></el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="completionDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitReport">提交报告</el-button>
-      </template>
-    </el-dialog>
   </PortalLayout>
 </template>
 
@@ -115,10 +181,10 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import StatusBadge from '../components/StatusBadge.vue'
-import { getCompletedProjects } from '../api/public'
-import { cancelParticipation, getVolunteerActivities, getVolunteerProducts, joinActivity, redeemProduct, submitCompletion, uploadFile } from '../api/platform'
+import { getPublicActivities } from '../api/public'
+import { getVolunteerActivities, getVolunteerProducts, redeemProduct } from '../api/platform'
 import { getCachedUser, getToken, hasRole } from '../api/auth'
-import { formatDateTime, getStatusMeta, toDateTimeInputValue } from '../utils/ui'
+import { formatDateTime } from '../utils/ui'
 
 const router = useRouter()
 const route = useRoute()
@@ -127,14 +193,27 @@ const loading = ref(false)
 const productLoading = ref(false)
 const activities = ref([])
 const products = ref([])
-const completionDialogVisible = ref(false)
-const submitting = ref(false)
-const uploadFiles = ref([])
-const completionForm = reactive(createEmptyCompletionForm())
+const searchKeyword = ref('')
+const searchedKeyword = ref('')
+const moreExpanded = ref(false)
+
+const categories = ['全部', '文明实践', '法律援助', '心理健康', '禁毒防毒', '文旅服务', '赛事展会', '垃圾分类', '助老助弱', '帮困助残', '生态环保', '医疗卫生', '文体科教', '公共安全', '社区治理', '应急救援', '其他']
+const signupStatuses = ['全部', '名额未满', '名额已满']
+const filters = reactive({
+  category: '全部',
+  signupStatus: '全部',
+  minPoints: '',
+  maxPoints: '',
+  minAge: '',
+  maxAge: '',
+  startDate: '',
+  endDate: ''
+})
 
 const isVolunteer = computed(() => !!getToken() && hasRole('volunteer', user.value))
 const isRewardsPanel = computed(() => route.query.panel === 'rewards')
 const pageActiveKey = computed(() => (isRewardsPanel.value ? 'rewards' : 'activities'))
+const visibleActivities = computed(() => activities.value.filter(matchFilters))
 
 onMounted(loadPageData)
 
@@ -145,35 +224,36 @@ watch(
   }
 )
 
-function createEmptyCompletionForm() {
-  return {
-    activityId: null,
-    activityName: '',
-    serviceLocation: '',
-    serviceStartTime: '',
-    serviceEndTime: '',
-    reportText: '',
-    contributionDetails: '',
-    attachmentPaths: []
-  }
+async function handleSearch() {
+  searchedKeyword.value = searchKeyword.value.trim()
+  await loadActivities()
+}
+
+async function resetSearch() {
+  searchKeyword.value = ''
+  searchedKeyword.value = ''
+  Object.assign(filters, {
+    category: '全部',
+    signupStatus: '全部',
+    minPoints: '',
+    maxPoints: '',
+    minAge: '',
+    maxAge: '',
+    startDate: '',
+    endDate: ''
+  })
+  await loadActivities()
 }
 
 async function loadActivities() {
   loading.value = true
   try {
-    if (isVolunteer.value) {
-      activities.value = await getVolunteerActivities()
-    } else {
-      const projects = await getCompletedProjects(12)
-      activities.value = projects.map((project) => ({
-        ...project,
-        activityName: project.title,
-        startDate: project.endDate,
-        approvedRewardPoints: null
-      }))
-    }
+    activities.value = isVolunteer.value
+      ? await getVolunteerActivities()
+      : await getPublicActivities({ keyword: searchedKeyword.value, limit: 80 })
   } catch (error) {
     activities.value = []
+    ElMessage.error(error.message || '活动加载失败')
   } finally {
     loading.value = false
   }
@@ -198,16 +278,6 @@ async function loadPageData() {
   }
 }
 
-async function handleJoin(activity) {
-  try {
-    await joinActivity(activity.activityId)
-    ElMessage.success('报名成功')
-    await loadActivities()
-  } catch (error) {
-    ElMessage.error(error.message || '报名失败')
-  }
-}
-
 async function handleRedeem(product) {
   try {
     await ElMessageBox.confirm(`确认消耗 ${product.price} 积分兑换“${product.productName}”吗？`, '积分兑换', { type: 'warning' })
@@ -221,65 +291,84 @@ async function handleRedeem(product) {
   }
 }
 
-async function handleCancel(activity) {
-  try {
-    await ElMessageBox.confirm(`确认取消活动“${activity.activityName}”的报名吗？`, '取消报名', { type: 'warning' })
-    await cancelParticipation(activity.activityId)
-    ElMessage.success('已取消报名')
-    await loadActivities()
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error(error.message || '取消报名失败')
-    }
+function matchFilters(activity) {
+  if (filters.category !== '全部' && !splitTags(activity.categoryTags).includes(filters.category)) {
+    return false
+  }
+  if (filters.signupStatus === '名额未满' && availableSlots(activity) <= 0) {
+    return false
+  }
+  if (filters.signupStatus === '名额已满' && availableSlots(activity) > 0) {
+    return false
+  }
+  const points = Number(activity.approvedRewardPoints ?? activity.requestedRewardPoints ?? 0)
+  if (filters.minPoints && points < Number(filters.minPoints)) {
+    return false
+  }
+  if (filters.maxPoints && points > Number(filters.maxPoints)) {
+    return false
+  }
+  const startDate = toDateOnly(activity.startDate)
+  if (filters.startDate && startDate && startDate < filters.startDate) {
+    return false
+  }
+  if (filters.endDate && startDate && startDate > filters.endDate) {
+    return false
+  }
+  return true
+}
+
+function goDetail(activity) {
+  if (activity?.activityId) {
+    router.push(`/activities/${activity.activityId}`)
   }
 }
 
-function openCompletionDialog(activity) {
-  Object.assign(completionForm, createEmptyCompletionForm(), {
-    activityId: activity.activityId,
-    activityName: activity.activityName,
-    serviceLocation: activity.location || '',
-    serviceStartTime: toDateTimeInputValue(activity.startDate),
-    serviceEndTime: toDateTimeInputValue(activity.endDate)
-  })
-  uploadFiles.value = []
-  completionDialogVisible.value = true
+function splitTags(value) {
+  return String(value || '')
+    .split(/[,，]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
 }
 
-async function handleUpload(option) {
-  try {
-    const path = await uploadFile(option.file)
-    completionForm.attachmentPaths.push(path)
-    uploadFiles.value.push({ name: option.file.name, url: path, response: { path } })
-    option.onSuccess({ path })
-  } catch (error) {
-    option.onError(error)
-    ElMessage.error(error.message || '上传失败')
-  }
+function firstTag(activity) {
+  return splitTags(activity.categoryTags)[0] || '志愿服务'
 }
 
-function handleUploadRemove(file) {
-  const path = file?.response?.path || file?.url
-  completionForm.attachmentPaths = completionForm.attachmentPaths.filter((item) => item !== path)
-  uploadFiles.value = uploadFiles.value.filter((item) => (item.response?.path || item.url) !== path)
+function availableSlots(activity) {
+  const max = Number(activity.maxParticipants ?? 0)
+  const current = Number(activity.currentParticipants ?? 0)
+  return Math.max(max - current, 0)
 }
 
-async function submitReport() {
-  if (!completionForm.activityId || !completionForm.serviceLocation || !completionForm.serviceStartTime || !completionForm.serviceEndTime || !completionForm.reportText || !completionForm.contributionDetails) {
-    ElMessage.warning('请填写完整服务报告')
-    return
+function toDateOnly(value) {
+  return value ? String(value).slice(0, 10) : ''
+}
+
+function formatDateOnly(value) {
+  return toDateOnly(value) || '-'
+}
+
+function placeholderClass(activity) {
+  const tag = firstTag(activity)
+  if (tag.includes('文体') || tag.includes('科教')) {
+    return 'project-placeholder--blue'
   }
-  submitting.value = true
-  try {
-    await submitCompletion({ ...completionForm })
-    ElMessage.success('服务报告已提交')
-    completionDialogVisible.value = false
-    await loadActivities()
-  } catch (error) {
-    ElMessage.error(error.message || '提交失败')
-  } finally {
-    submitting.value = false
+  if (tag.includes('文旅') || tag.includes('赛事')) {
+    return 'project-placeholder--purple'
   }
+  return 'project-placeholder--red'
+}
+
+function placeholderIcon(activity) {
+  const tag = firstTag(activity)
+  if (tag.includes('文体') || tag.includes('科教')) {
+    return '书'
+  }
+  if (tag.includes('文旅') || tag.includes('赛事')) {
+    return '行'
+  }
+  return '志'
 }
 
 function resolveImage(path) {
@@ -295,7 +384,7 @@ function resolveImage(path) {
 </script>
 
 <style scoped>
-.list-page {
+.activity-page {
   padding-bottom: 70px;
 }
 
@@ -304,7 +393,7 @@ function resolveImage(path) {
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .page-actions {
@@ -319,107 +408,381 @@ function resolveImage(path) {
   font-size: 30px;
 }
 
-.page-title-row p {
-  margin: 10px 0 0;
-  color: #777;
-}
-
+.page-title-row p,
 .portal-loading {
-  padding: 28px 0;
   color: #777;
 }
 
-.activity-grid {
+.filter-panel {
+  margin-bottom: 28px;
+  padding: 2px 0 0;
+  background: linear-gradient(180deg, #fff8f4 0%, #ffffff 100%);
+}
+
+.filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.filter-row strong {
+  flex: 0 0 74px;
+  color: #1f1f1f;
+  font-size: 15px;
+  line-height: 28px;
+}
+
+.filter-options {
+  display: flex;
+  flex: 1;
+  gap: 12px 18px;
+  flex-wrap: wrap;
+}
+
+.filter-row button {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: #333;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 28px;
+}
+
+.filter-row button.active {
+  background: #e60012;
+  color: #fff;
+}
+
+.filter-row--compact {
+  align-items: center;
+}
+
+.compact-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.compact-group :deep(.el-input) {
+  width: 150px;
+}
+
+.more-line {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 18px;
+  border-top: 1px solid #e9e9e9;
+}
+
+.more-line button {
+  min-width: 92px;
+  height: 30px;
+  margin-top: -15px;
+  border: 1px solid #cfcfcf;
+  border-radius: 999px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+}
+
+.query-panel {
+  display: grid;
+  grid-template-columns: 430px 390px auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 28px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(40, 40, 70, 0.06);
+}
+
+.query-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.query-item label {
+  color: #222;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.query-item--keyword :deep(.el-input) {
+  flex: 1;
+}
+
+.query-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.query-range :deep(.el-date-editor) {
+  width: 152px;
+}
+
+.query-panel :deep(.el-input__wrapper) {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+}
+
+.query-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-actions :deep(.el-button--primary) {
+  border-color: #e60012;
+  background: #e60012;
+}
+
+.reset-button {
+  border-color: #d5d5d5;
+  background: #c9c9c9;
+  color: #fff;
+}
+
+.project-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  gap: 32px 40px;
 }
 
-.activity-card {
+.project-card {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 12px;
+  min-height: 246px;
+  padding: 14px;
+  border: 1px solid #f2f2f2;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(40, 40, 70, 0.08);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(40, 40, 70, 0.13);
+}
+
+.project-card__top {
+  display: grid;
+  grid-template-columns: 164px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.project-image {
+  position: relative;
+  height: 132px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.project-image img,
+.project-placeholder {
+  width: 100%;
+  height: 132px;
+}
+
+.project-image img {
+  object-fit: cover;
+}
+
+.project-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 0 0 8px 0;
+  background: #e60012;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.project-placeholder {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 44px;
+  font-weight: 800;
+}
+
+.project-placeholder--red {
+  background: linear-gradient(135deg, #ff9ea8, #ffd6d8);
+}
+
+.project-placeholder--purple {
+  background: linear-gradient(135deg, #bfb5ff, #e6ddff);
+}
+
+.project-placeholder--blue {
+  background: linear-gradient(135deg, #75c8ff, #d5f1ff);
+}
+
+.project-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 132px;
+}
+
+.project-main h2 {
+  height: 54px;
+  margin: 2px 0 18px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: #171717;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.project-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: auto;
+}
+
+.project-stats div {
+  min-height: 42px;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.project-stats div + div {
+  padding-left: 20px;
+  border-left: 1px solid #eeeeee;
+}
+
+.project-stats span {
+  color: #999;
+  font-size: 13px;
+}
+
+.project-stats strong {
+  color: #111;
+  font-size: 14px;
+}
+
+.project-meta {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding-top: 2px;
+}
+
+.project-meta p {
+  margin: 0;
+  width: 100%;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.product-card {
   overflow: hidden;
   border: 1px solid rgba(223, 0, 27, 0.12);
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 12px 28px rgba(161, 43, 61, 0.06);
+  box-shadow: 0 14px 30px rgba(161, 43, 61, 0.07);
 }
 
-.activity-cover {
-  height: 170px;
+.product-cover {
+  height: 150px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ffe2e6, #fff3e8);
+  background: linear-gradient(135deg, #fff0d8, #fff7f7);
   color: #df001b;
   font-size: 24px;
   font-weight: 700;
 }
 
-.activity-cover img {
+.product-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.activity-body {
-  padding: 20px;
-}
-
-.card-topline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  color: #777;
-  font-size: 13px;
-}
-
-.activity-body h2 {
-  margin: 14px 0 0;
-  font-size: 21px;
-}
-
-.activity-body p {
-  min-height: 54px;
-  margin: 10px 0 0;
-  color: #666;
-  line-height: 1.7;
-}
-
-.meta-list {
+.product-body {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin: 18px 0 0;
+  padding: 18px;
 }
 
-.meta-list dt {
-  color: #888;
-  font-size: 12px;
+.product-body h2,
+.product-body p {
+  margin: 0;
 }
 
-.meta-list dd {
-  margin: 6px 0 0;
-  color: #333;
-  font-weight: 700;
-}
-
-.card-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-}
-
-@media (max-width: 1100px) {
-  .activity-grid {
+@media (max-width: 1180px) {
+  .project-grid,
+  .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 760px) {
   .page-title-row,
-  .activity-grid {
+  .project-grid,
+  .product-grid,
+  .query-panel,
+  .query-range,
+  .query-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .query-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .project-meta p {
+    white-space: normal;
+  }
+
+  .project-card__top {
+    grid-template-columns: 1fr;
+  }
+
+  .project-image {
+    height: 160px;
+  }
+
+  .project-image img,
+  .project-placeholder {
+    height: 160px;
+  }
+
+  .query-actions {
+    margin-left: 0;
   }
 }
 </style>

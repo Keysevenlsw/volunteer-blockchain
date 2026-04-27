@@ -1,16 +1,18 @@
 pragma solidity ^0.6.10;
 
 contract VolunteerPointsLedger {
+    uint256 private constant MAX_INT256 = 2**255 - 1;
+
     struct PointTransaction {
         uint256 userId;
         uint256 organizationId;
         int256 pointsDelta;
-        string transactionType;
-        string source;
-        string referenceType;
-        string referenceId;
-        string digest;
-        string createdAt;
+        uint8 transactionCode;
+        bytes32 sourceHash;
+        bytes32 referenceTypeHash;
+        bytes32 referenceIdHash;
+        bytes32 digestHash;
+        bytes32 createdAtHash;
         uint256 balanceAfter;
         bool exists;
     }
@@ -29,7 +31,11 @@ contract VolunteerPointsLedger {
         string memory digest,
         string memory createdAt
     ) public {
+        require(bytes(bizKey).length > 0, "bizKey is required");
+        require(userId > 0, "userId is required");
         require(points > 0, "points must be positive");
+        require(points <= MAX_INT256, "points overflow");
+
         bytes32 key = buildKey(bizKey);
         require(!transactions[key].exists, "biz key already exists");
 
@@ -38,12 +44,12 @@ contract VolunteerPointsLedger {
             userId,
             organizationId,
             int256(points),
-            "earned",
-            source,
-            referenceType,
-            referenceId,
-            digest,
-            createdAt,
+            1,
+            hashText(source),
+            hashText(referenceType),
+            hashText(referenceId),
+            hashText(digest),
+            hashText(createdAt),
             balances[userId],
             true
         );
@@ -60,8 +66,12 @@ contract VolunteerPointsLedger {
         string memory digest,
         string memory createdAt
     ) public {
+        require(bytes(bizKey).length > 0, "bizKey is required");
+        require(userId > 0, "userId is required");
         require(points > 0, "points must be positive");
+        require(points <= MAX_INT256, "points overflow");
         require(balances[userId] >= points, "insufficient points");
+
         bytes32 key = buildKey(bizKey);
         require(!transactions[key].exists, "biz key already exists");
 
@@ -70,12 +80,12 @@ contract VolunteerPointsLedger {
             userId,
             organizationId,
             -int256(points),
-            "spent",
-            source,
-            referenceType,
-            referenceId,
-            digest,
-            createdAt,
+            2,
+            hashText(source),
+            hashText(referenceType),
+            hashText(referenceId),
+            hashText(digest),
+            hashText(createdAt),
             balances[userId],
             true
         );
@@ -92,7 +102,11 @@ contract VolunteerPointsLedger {
         string memory digest,
         string memory createdAt
     ) public {
+        require(bytes(bizKey).length > 0, "bizKey is required");
+        require(userId > 0, "userId is required");
         require(points > 0, "points must be positive");
+        require(points <= MAX_INT256, "points overflow");
+
         bytes32 key = buildKey(bizKey);
         require(!transactions[key].exists, "biz key already exists");
 
@@ -101,12 +115,12 @@ contract VolunteerPointsLedger {
             userId,
             organizationId,
             int256(points),
-            "earned",
-            source,
-            referenceType,
-            referenceId,
-            digest,
-            createdAt,
+            3,
+            hashText(source),
+            hashText(referenceType),
+            hashText(referenceId),
+            hashText(digest),
+            hashText(createdAt),
             balances[userId],
             true
         );
@@ -121,38 +135,23 @@ contract VolunteerPointsLedger {
         view
         returns (
             uint256 userId,
-            uint256 organizationId,
             int256 pointsDelta,
-            string memory transactionType,
-            string memory source,
-            string memory referenceType,
-            string memory referenceId,
-            string memory digest,
-            string memory createdAt,
             uint256 balanceAfter,
-            string memory status
+            bool exists
         )
     {
         PointTransaction memory item = transactions[buildKey(bizKey)];
         if (!item.exists) {
-            return (0, 0, 0, "", "", "", "", "", "", 0, "missing");
+            return (0, 0, 0, false);
         }
-        return (
-            item.userId,
-            item.organizationId,
-            item.pointsDelta,
-            item.transactionType,
-            item.source,
-            item.referenceType,
-            item.referenceId,
-            item.digest,
-            item.createdAt,
-            item.balanceAfter,
-            "stored"
-        );
+        return (item.userId, item.pointsDelta, item.balanceAfter, true);
     }
 
     function buildKey(string memory bizKey) private pure returns (bytes32) {
         return keccak256(abi.encodePacked(bizKey));
+    }
+
+    function hashText(string memory value) private pure returns (bytes32) {
+        return keccak256(abi.encodePacked(value));
     }
 }

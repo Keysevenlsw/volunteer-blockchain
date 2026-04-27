@@ -39,8 +39,8 @@ public class BlockchainServiceImpl implements BlockchainService {
     @Value("${webase.front-url:}")
     private String webaseFrontUrl;
 
-    @Value("${webase.group-id:1}")
-    private Integer groupId;
+    @Value("${webase.group-id:group0}")
+    private String groupId;
 
     @Value("${webase.user-address:}")
     private String userAddress;
@@ -125,16 +125,20 @@ public class BlockchainServiceImpl implements BlockchainService {
                 .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            Map<String, Object> payload = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {
-            });
-            Object code = payload.get("code");
+            Object payload = objectMapper.readValue(response.body(), Object.class);
+            if (!(payload instanceof Map<?, ?> payloadMap)) {
+                markFailed(evidence, "Unexpected WeBASE response");
+                return evidence;
+            }
+            Object code = payloadMap.get("code");
             if (!isSuccessCode(code)) {
-                markFailed(evidence, payload.getOrDefault("message", "WeBASE 调用失败").toString());
+                Object message = payloadMap.containsKey("message") ? payloadMap.get("message") : payloadMap.get("errorMessage");
+                markFailed(evidence, String.valueOf(message == null ? "WeBASE call failed" : message));
                 return evidence;
             }
 
             Map<String, Object> data = null;
-            Object dataObject = payload.get("data");
+            Object dataObject = payloadMap.get("data");
             if (dataObject instanceof Map<?, ?> rawMap) {
                 data = new LinkedHashMap<>();
                 for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
@@ -175,8 +179,9 @@ public class BlockchainServiceImpl implements BlockchainService {
         blockchainEvidenceMapper.updateById(evidence);
     }
 
-    private String readContractAbi() throws IOException {
-        return new String(contractAbiResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    private Object readContractAbi() throws IOException {
+        String abiJson = new String(contractAbiResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        return objectMapper.readValue(abiJson, Object.class);
     }
 
     private String readValue(Map<String, Object> data, String primaryKey, String fallbackKey) {

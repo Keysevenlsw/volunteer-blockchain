@@ -265,7 +265,7 @@ public class ProductServiceImpl implements ProductService {
             refund.setUserId(redemption.getUserId());
             refund.setOrganizationId(redemption.getOrganizationId());
             refund.setPoints(redemption.getPointsCost());
-            refund.setTransactionType("earned");
+            refund.setTransactionType(pointResult.transactionType());
             refund.setSource("兑换取消返还");
             refund.setReferenceType("redemption");
             refund.setReferenceId(redemption.getId());

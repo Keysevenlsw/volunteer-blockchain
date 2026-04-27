@@ -23,6 +23,34 @@ export function getCompletedProjects(limit = 6) {
   return request(`/api/public/completed-projects?limit=${limit}`)
 }
 
+export function getPublicActivities(params = {}) {
+  const searchParams = new URLSearchParams()
+  const { keyword = '', limit = 60 } = params
+  searchParams.set('limit', String(limit))
+  if (keyword) {
+    searchParams.set('keyword', keyword)
+  }
+  return request(`/api/public/activities?${searchParams.toString()}`)
+}
+
+export function getPublicActivity(id) {
+  return request(`/api/public/activities/${id}`)
+}
+
+export function getPublicActivityRegistrations(id) {
+  return request(`/api/public/activities/${id}/registrations`)
+}
+
+export function getPublicOrganizations(params = {}) {
+  const searchParams = new URLSearchParams()
+  const { keyword = '' } = params
+  if (keyword) {
+    searchParams.set('keyword', keyword)
+  }
+  const suffix = searchParams.toString()
+  return request(`/api/public/organizations${suffix ? `?${suffix}` : ''}`)
+}
+
 export function getPublicEvidences(params = {}) {
   const searchParams = new URLSearchParams()
   const { limit = 20, status, organizationId, keyword } = params

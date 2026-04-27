@@ -16,6 +16,7 @@ public final class PlatformVOs {
         private String organizationName;
         private String organizationDescription;
         private String avatarPath;
+        private Integer publicActivityCount;
     }
 
     @Data
@@ -59,6 +60,20 @@ public final class PlatformVOs {
         private String status;
         private Boolean joined;
         private String completionStatus;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class ActivityRegistrationVO {
+        private Integer participationId;
+        private Integer activityId;
+        private String activityDate;
+        private String sessionTime;
+        private String username;
+        private String positionName;
+        private Integer serviceHours;
+        private String signupTime;
+        private String signupMethod;
     }
 
     @Data
