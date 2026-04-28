@@ -37,9 +37,10 @@ public class PublicController {
     @GetMapping("/activities")
     public ApiResponse<List<PlatformVOs.ActivityVO>> activities(
         @RequestParam(value = "keyword", required = false) String keyword,
-        @RequestParam(value = "limit", defaultValue = "60") Integer limit
+        @RequestParam(value = "limit", defaultValue = "60") Integer limit,
+        @RequestParam(value = "organizationId", required = false) Integer organizationId
     ) {
-        return ApiResponse.success(publicService.listPublicActivities(keyword, limit));
+        return ApiResponse.success(publicService.listPublicActivities(keyword, limit, organizationId));
     }
 
     @GetMapping("/activities/{id}")
@@ -54,9 +55,15 @@ public class PublicController {
 
     @GetMapping("/organizations")
     public ApiResponse<List<PlatformVOs.OrganizationVO>> organizations(
-        @RequestParam(value = "keyword", required = false) String keyword
+        @RequestParam(value = "keyword", required = false) String keyword,
+        @RequestParam(value = "organizationId", required = false) Integer organizationId
     ) {
-        return ApiResponse.success(publicService.listPublicOrganizations(keyword));
+        return ApiResponse.success(publicService.listPublicOrganizations(keyword, organizationId));
+    }
+
+    @GetMapping("/organizations/{id}")
+    public ApiResponse<PlatformVOs.OrganizationVO> organizationDetail(@PathVariable Integer id) {
+        return ApiResponse.success(publicService.getPublicOrganization(id));
     }
 
     @GetMapping("/evidences")

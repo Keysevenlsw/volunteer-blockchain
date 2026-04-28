@@ -692,6 +692,7 @@ public class RbacDataInitializer implements ApplicationRunner {
         seedDemoParticipationByRank(2, volunteerB, 1);
         seedDemoParticipationByRank(2, volunteerC, 1);
         seedDemoParticipationByRank(4, volunteerA, 3);
+        seedExtendedDemoPublicData(reviewerId);
     }
 
     private Integer seedDemoOrganization(String name, String description) {
@@ -883,6 +884,28 @@ public class RbacDataInitializer implements ApplicationRunner {
             activityId,
             LocalDateTime.now().minusDays(joinedDaysAgo)
         );
+    }
+
+    private void seedExtendedDemoPublicData(Integer reviewerId) {
+        Integer org4 = seedDemoOrganization("春芽助学志愿队", "聚焦助学陪伴、阅读推广、课后支持和青少年成长服务。");
+        Integer org5 = seedDemoOrganization("城市守护应急服务队", "开展大型活动保障、应急宣传、秩序维护和安全引导。");
+        Integer org6 = seedDemoOrganization("银龄幸福服务站", "面向老年群体提供探访陪伴、健康宣传和便民支持。");
+        Integer org7 = seedDemoOrganization("晨光环保行动社", "组织环保宣传、河道巡护、低碳倡导和清洁服务。");
+        Integer org8 = seedDemoOrganization("益行文化传播社", "开展文旅志愿、展会保障、讲解服务和文明倡导。");
+        Integer org9 = seedDemoOrganization("暖阳社区治理联盟", "围绕社区议事、便民引导、邻里互助和基层治理展开服务。");
+        Integer org10 = seedDemoOrganization("海豚心理关爱中心", "关注心理健康、情绪陪伴、青少年辅导和公益咨询。");
+        Integer org11 = seedDemoOrganization("蓝盾医疗服务团", "开展医疗卫生宣传、义诊协助、健康讲座和导诊支持。");
+        Integer org12 = seedDemoOrganization("繁星体育志愿社", "服务体育赛事、校园运动会和公共文化活动现场保障。");
+
+        seedDemoActivity(org4, "社区阅读陪伴志愿服务", "为社区儿童开展阅读陪伴、绘本讲解和课后互动活动。", "白云区同心社区服务站", "文体科教,帮困助残", 3, 1, 24, 6, 16, 16, "杨老师", "13800000005", reviewerId);
+        seedDemoActivity(org5, "广场安全宣传与秩序维护", "协助开展应急知识宣传、现场引导和秩序维护工作。", "观山湖区市民广场", "应急救援,公共安全", 4, 1, 30, 8, 22, 22, "周老师", "13800000006", reviewerId);
+        seedDemoActivity(org6, "银龄手机课堂陪伴服务", "帮助老年居民学习手机支付、挂号、导航和基础反诈知识。", "乌当区幸福里社区", "助老助弱,社区服务", 6, 1, 28, 10, 18, 18, "郑老师", "13800000007", reviewerId);
+        seedDemoActivity(org7, "周末城市步道清洁行动", "进行步道垃圾分类清理、环保倡议宣传和路线巡护。", "花溪区十里河滩步道", "生态环保,垃圾分类", 8, 1, 32, 11, 20, 20, "刘老师", "13800000008", reviewerId);
+        seedDemoActivity(org8, "博物馆节假日志愿讲解", "承担参观接待、路线讲解、文明提示和咨询服务。", "贵州省博物馆", "文旅服务,文明实践", 9, 1, 18, 5, 15, 15, "何老师", "13800000009", reviewerId);
+        seedDemoActivity(org9, "社区便民窗口引导服务", "协助居民办理咨询、号码取号、秩序维护和需求登记。", "南明区政务便民中心", "社区治理,便民服务", 10, 1, 26, 7, 17, 17, "孙老师", "13800000010", reviewerId);
+        seedDemoActivity(org10, "青春心理疏导公益陪伴", "为青少年提供情绪陪伴、减压互动和心理健康宣传支持。", "云岩区青年之家", "心理健康,帮困助残", 11, 1, 20, 4, 24, 24, "高老师", "13800000011", reviewerId);
+        seedDemoActivity(org11, "健康义诊现场协助服务", "协助义诊签到、导诊引导、健康资料发放和现场秩序维护。", "修文县人民广场", "医疗卫生,文明实践", 12, 1, 22, 9, 19, 19, "冯老师", "13800000012", reviewerId);
+        seedDemoActivity(org12, "校园运动会赛事保障志愿服务", "承担检录协助、场地引导、选手服务和赛事秩序维护。", "贵州师范大学东校区", "赛事展会,文体科教", 13, 1, 36, 13, 26, 26, "吴老师", "13800000013", reviewerId);
     }
 
     private void execute(String sql) {

@@ -25,10 +25,13 @@ export function getCompletedProjects(limit = 6) {
 
 export function getPublicActivities(params = {}) {
   const searchParams = new URLSearchParams()
-  const { keyword = '', limit = 60 } = params
+  const { keyword = '', limit = 60, organizationId = '' } = params
   searchParams.set('limit', String(limit))
   if (keyword) {
     searchParams.set('keyword', keyword)
+  }
+  if (organizationId) {
+    searchParams.set('organizationId', String(organizationId))
   }
   return request(`/api/public/activities?${searchParams.toString()}`)
 }
@@ -43,12 +46,19 @@ export function getPublicActivityRegistrations(id) {
 
 export function getPublicOrganizations(params = {}) {
   const searchParams = new URLSearchParams()
-  const { keyword = '' } = params
+  const { keyword = '', organizationId = '' } = params
   if (keyword) {
     searchParams.set('keyword', keyword)
   }
+  if (organizationId) {
+    searchParams.set('organizationId', String(organizationId))
+  }
   const suffix = searchParams.toString()
   return request(`/api/public/organizations${suffix ? `?${suffix}` : ''}`)
+}
+
+export function getPublicOrganization(id) {
+  return request(`/api/public/organizations/${id}`)
 }
 
 export function getPublicEvidences(params = {}) {

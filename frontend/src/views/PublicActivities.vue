@@ -121,7 +121,7 @@
           <div v-if="loading" class="portal-loading">正在加载活动...</div>
           <div v-else class="project-grid">
             <article
-              v-for="activity in visibleActivities"
+              v-for="activity in pagedVisibleActivities"
               :key="activity.activityId"
               class="project-card"
               role="button"
@@ -167,6 +167,17 @@
             </article>
           </div>
 
+          <div v-if="!loading && visibleActivities.length > pageSize" class="pagination-row">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :page-size="pageSize"
+              :total="visibleActivities.length"
+              :current-page="currentPage"
+              @current-change="handlePageChange"
+            />
+          </div>
+
           <EmptyState v-if="!loading && !visibleActivities.length" mark="活" title="暂无匹配活动" description="换个条件试试，或等待组织发布新的公开活动。" />
         </template>
       </div>
@@ -196,6 +207,8 @@ const products = ref([])
 const searchKeyword = ref('')
 const searchedKeyword = ref('')
 const moreExpanded = ref(false)
+const currentPage = ref(1)
+const pageSize = 9
 
 const categories = ['全部', '文明实践', '法律援助', '心理健康', '禁毒防毒', '文旅服务', '赛事展会', '垃圾分类', '助老助弱', '帮困助残', '生态环保', '医疗卫生', '文体科教', '公共安全', '社区治理', '应急救援', '其他']
 const signupStatuses = ['全部', '名额未满', '名额已满']
@@ -214,6 +227,10 @@ const isVolunteer = computed(() => !!getToken() && hasRole('volunteer', user.val
 const isRewardsPanel = computed(() => route.query.panel === 'rewards')
 const pageActiveKey = computed(() => (isRewardsPanel.value ? 'rewards' : 'activities'))
 const visibleActivities = computed(() => activities.value.filter(matchFilters))
+const pagedVisibleActivities = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return visibleActivities.value.slice(start, start + pageSize)
+})
 
 onMounted(loadPageData)
 
@@ -226,12 +243,14 @@ watch(
 
 async function handleSearch() {
   searchedKeyword.value = searchKeyword.value.trim()
+  currentPage.value = 1
   await loadActivities()
 }
 
 async function resetSearch() {
   searchKeyword.value = ''
   searchedKeyword.value = ''
+  currentPage.value = 1
   Object.assign(filters, {
     category: '全部',
     signupStatus: '全部',
@@ -243,6 +262,10 @@ async function resetSearch() {
     endDate: ''
   })
   await loadActivities()
+}
+
+function handlePageChange(page) {
+  currentPage.value = page
 }
 
 async function loadActivities() {
@@ -703,6 +726,12 @@ function resolveImage(path) {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+}
+
+.pagination-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 26px;
 }
 
 .product-card {

@@ -89,10 +89,11 @@
         <div class="portal-breadcrumb__trail">
           <span>当前位置：</span>
           <RouterLink to="/">首页</RouterLink>
-          <template v-for="(item, index) in resolvedBreadcrumbItems" :key="`${item}-${index}`">
+          <template v-for="(item, index) in resolvedBreadcrumbItems" :key="`${item.label}-${index}`">
             <span class="portal-breadcrumb__sep">></span>
-            <strong v-if="index === resolvedBreadcrumbItems.length - 1">{{ item }}</strong>
-            <span v-else>{{ item }}</span>
+            <strong v-if="index === resolvedBreadcrumbItems.length - 1">{{ item.label }}</strong>
+            <RouterLink v-else-if="item.path" :to="item.path">{{ item.label }}</RouterLink>
+            <span v-else>{{ item.label }}</span>
           </template>
         </div>
         <el-button
@@ -180,9 +181,17 @@ const workspaceText = computed(() => {
 
 const resolvedBreadcrumbItems = computed(() => {
   if (props.breadcrumbItems.length) {
-    return props.breadcrumbItems
+    return props.breadcrumbItems.map((item) => {
+      if (typeof item === 'string') {
+        return { label: item, path: '' }
+      }
+      return {
+        label: item?.label || '',
+        path: item?.path || ''
+      }
+    })
   }
-  return props.breadcrumb ? [props.breadcrumb] : []
+  return props.breadcrumb ? [{ label: props.breadcrumb, path: '' }] : []
 })
 
 const hasBreadcrumb = computed(() => resolvedBreadcrumbItems.value.length > 0)

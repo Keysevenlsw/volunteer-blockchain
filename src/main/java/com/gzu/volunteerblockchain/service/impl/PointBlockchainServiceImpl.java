@@ -42,6 +42,9 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
     @Value("${webase.user-address:}")
     private String userAddress;
 
+    @Value("${webase.sign-user-id:}")
+    private String signUserId;
+
     @Value("${webase.points-contract-address:}")
     private String pointsContractAddress;
 
@@ -73,7 +76,7 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
     @Override
     public Integer getBalance(Integer userId) {
         validateUserId(userId);
-        Object data = invokeContract("getBalance", List.of(userId));
+        Object data = invokeContract("getBalance", List.of(userId), false);
         Integer balance = extractInteger(data);
         if (balance == null) {
             throw new BusinessException("Unable to parse chain points balance");
@@ -84,7 +87,7 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
     @Override
     public PointChainTransaction getTransaction(String bizKey) {
         String normalizedBizKey = trimRequired(bizKey, "bizKey is required");
-        Object data = invokeContract("getTransaction", List.of(normalizedBizKey));
+        Object data = invokeContract("getTransaction", List.of(normalizedBizKey), false);
         List<Object> values = flattenValues(data);
         if (values.size() < 4) {
             return new PointChainTransaction(false, normalizedBizKey, null, null, null);
@@ -116,7 +119,7 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
             request.referenceId() == null ? "" : String.valueOf(request.referenceId()),
             digest,
             format(now)
-        ));
+        ), true);
         String txHash = findString(data, "transactionHash", "txHash", "hash");
         String blockNumber = findString(data, "blockNumber", "blockNum", "blockHeight");
         Integer balanceAfter = getBalance(request.userId());
@@ -132,19 +135,25 @@ public class PointBlockchainServiceImpl implements PointBlockchainService {
         );
     }
 
-    private Object invokeContract(String functionName, List<Object> functionParams) {
+    private Object invokeContract(String functionName, List<Object> functionParams, boolean writeTransaction) {
         requireChainConfig();
         try {
             Map<String, Object> requestBody = new LinkedHashMap<>();
             requestBody.put("groupId", groupId);
-            requestBody.put("user", userAddress);
             requestBody.put("contractAddress", pointsContractAddress);
             requestBody.put("contractAbi", readContractAbi());
             requestBody.put("funcName", functionName);
             requestBody.put("funcParam", functionParams);
+            if (writeTransaction && !isBlank(signUserId)) {
+                requestBody.put("signUserId", signUserId);
+            } else {
+                requestBody.put("user", userAddress);
+            }
 
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(trimTrailingSlash(webaseFrontUrl) + "/WeBASE-Front/trans/handle"))
+                .uri(URI.create(trimTrailingSlash(webaseFrontUrl) + (writeTransaction && !isBlank(signUserId)
+                    ? "/WeBASE-Front/trans/handleWithSign"
+                    : "/WeBASE-Front/trans/handle")))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(requestBody)))
                 .build();

@@ -17,6 +17,7 @@ public final class PlatformVOs {
         private String organizationDescription;
         private String avatarPath;
         private Integer publicActivityCount;
+        private Integer volunteerCount;
     }
 
     @Data

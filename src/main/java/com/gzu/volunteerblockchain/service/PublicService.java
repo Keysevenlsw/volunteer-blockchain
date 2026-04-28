@@ -11,13 +11,15 @@ public interface PublicService {
 
     List<ProjectItemVO> getCompletedProjects(int limit);
 
-    List<PlatformVOs.ActivityVO> listPublicActivities(String keyword, Integer limit);
+    List<PlatformVOs.ActivityVO> listPublicActivities(String keyword, Integer limit, Integer organizationId);
 
     PlatformVOs.ActivityVO getPublicActivity(Integer id);
 
     List<PlatformVOs.ActivityRegistrationVO> listPublicActivityRegistrations(Integer activityId);
 
-    List<PlatformVOs.OrganizationVO> listPublicOrganizations(String keyword);
+    List<PlatformVOs.OrganizationVO> listPublicOrganizations(String keyword, Integer organizationId);
+
+    PlatformVOs.OrganizationVO getPublicOrganization(Integer id);
 
     List<PlatformVOs.EvidenceVO> listPublicEvidences(Integer limit, String status, Integer organizationId, String keyword);
 

@@ -1,5 +1,6 @@
 package com.gzu.volunteerblockchain.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gzu.volunteerblockchain.entity.Activity;
@@ -44,6 +45,9 @@ public class BlockchainServiceImpl implements BlockchainService {
 
     @Value("${webase.user-address:}")
     private String userAddress;
+
+    @Value("${webase.sign-user-id:}")
+    private String signUserId;
 
     @Value("${webase.contract-address:}")
     private String contractAddress;
@@ -105,7 +109,6 @@ public class BlockchainServiceImpl implements BlockchainService {
         try {
             Map<String, Object> requestBody = new LinkedHashMap<>();
             requestBody.put("groupId", groupId);
-            requestBody.put("user", userAddress);
             requestBody.put("contractAddress", contractAddress);
             requestBody.put("contractAbi", readContractAbi());
             requestBody.put("funcName", "saveEvidence");
@@ -117,9 +120,16 @@ public class BlockchainServiceImpl implements BlockchainService {
                 format(evidence.getReviewedAt()),
                 safe(evidence.getStoragePath())
             ));
+            if (!isBlank(signUserId)) {
+                requestBody.put("signUserId", signUserId);
+            } else {
+                requestBody.put("user", userAddress);
+            }
 
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(trimTrailingSlash(webaseFrontUrl) + "/WeBASE-Front/trans/handle"))
+                .uri(URI.create(trimTrailingSlash(webaseFrontUrl) + (!isBlank(signUserId)
+                    ? "/WeBASE-Front/trans/handleWithSign"
+                    : "/WeBASE-Front/trans/handle")))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(requestBody)))
                 .build();
@@ -144,14 +154,20 @@ public class BlockchainServiceImpl implements BlockchainService {
                 for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
                     data.put(String.valueOf(entry.getKey()), entry.getValue());
                 }
+            } else if (payloadMap.containsKey("transactionHash") || payloadMap.containsKey("txHash") || payloadMap.containsKey("blockNumber")) {
+                data = new LinkedHashMap<>();
+                for (Map.Entry<?, ?> entry : payloadMap.entrySet()) {
+                    data.put(String.valueOf(entry.getKey()), entry.getValue());
+                }
             }
 
             evidence.setOnchainStatus("success");
+            evidence.setContractName(contractName);
             evidence.setTxHash(readValue(data, "transactionHash", "txHash"));
             evidence.setBlockNumber(readValue(data, "blockNumber", "blockNum"));
             evidence.setErrorMessage(null);
             evidence.setOnchainAt(LocalDateTime.now());
-            blockchainEvidenceMapper.updateById(evidence);
+            updateEvidenceSuccess(evidence);
             return evidence;
         } catch (IOException | InterruptedException ex) {
             if (ex instanceof InterruptedException) {
@@ -177,6 +193,20 @@ public class BlockchainServiceImpl implements BlockchainService {
         evidence.setOnchainStatus("failed");
         evidence.setErrorMessage(errorMessage);
         blockchainEvidenceMapper.updateById(evidence);
+    }
+
+    private void updateEvidenceSuccess(BlockchainEvidence evidence) {
+        blockchainEvidenceMapper.update(
+            null,
+            new LambdaUpdateWrapper<BlockchainEvidence>()
+                .eq(BlockchainEvidence::getId, evidence.getId())
+                .set(BlockchainEvidence::getOnchainStatus, evidence.getOnchainStatus())
+                .set(BlockchainEvidence::getContractName, evidence.getContractName())
+                .set(BlockchainEvidence::getTxHash, evidence.getTxHash())
+                .set(BlockchainEvidence::getBlockNumber, evidence.getBlockNumber())
+                .set(BlockchainEvidence::getErrorMessage, null)
+                .set(BlockchainEvidence::getOnchainAt, evidence.getOnchainAt())
+        );
     }
 
     private Object readContractAbi() throws IOException {

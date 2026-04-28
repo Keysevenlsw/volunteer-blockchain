@@ -19,6 +19,8 @@ import com.gzu.volunteerblockchain.service.PublicService;
 import com.gzu.volunteerblockchain.vo.InfoItemVO;
 import com.gzu.volunteerblockchain.vo.PlatformVOs;
 import com.gzu.volunteerblockchain.vo.ProjectItemVO;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -32,8 +34,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class PublicServiceImpl implements PublicService {
 
+    private static final String REVIEW_APPROVED = "approved";
+    private static final String EVIDENCE_BIZ_COMPLETION = "completion";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final ActivityMapper activityMapper;
     private final ActivityParticipationMapper participationMapper;
@@ -75,7 +80,7 @@ public class PublicServiceImpl implements PublicService {
     public List<ProjectItemVO> getCompletedProjects(int limit) {
         int safeLimit = Math.max(1, Math.min(limit, 20));
         List<ActivityCompletion> completions = completionMapper.selectList(new LambdaQueryWrapper<ActivityCompletion>()
-            .eq(ActivityCompletion::getCompletionStatus, "approved")
+            .eq(ActivityCompletion::getCompletionStatus, REVIEW_APPROVED)
             .orderByDesc(ActivityCompletion::getApprovedAt)
             .last("LIMIT " + safeLimit));
         if (completions.isEmpty()) {
@@ -92,6 +97,7 @@ public class PublicServiceImpl implements PublicService {
             if (activity == null) {
                 continue;
             }
+
             User volunteer = userMap.get(completion.getUserId());
             User reviewer = completion.getApprovedBy() == null ? null : userMapper.selectById(completion.getApprovedBy());
             Organization organization = activity.getOrganizationId() == null ? null : organizationMapper.selectById(activity.getOrganizationId());
@@ -102,30 +108,38 @@ public class PublicServiceImpl implements PublicService {
             vo.setTitle(activity.getActivityName());
             vo.setDescription(completion.getReportText() == null ? activity.getDescription() : completion.getReportText());
             vo.setLocation(activity.getLocation());
-            vo.setEndDate(activity.getEndDate() == null ? null : activity.getEndDate().format(DATE_FORMATTER));
+            vo.setEndDate(formatDate(activity.getEndDate()));
             vo.setImage(activity.getImagePath());
             vo.setOrganizationName(organization == null ? null : organization.getOrganizationName());
             vo.setVolunteerName(volunteer == null ? null : volunteer.getUsername());
             vo.setReviewerName(reviewer == null ? null : reviewer.getUsername());
-            vo.setReviewTime(completion.getApprovedAt() == null ? null : completion.getApprovedAt().format(DATE_TIME_FORMATTER));
+            vo.setReviewTime(formatDateTime(completion.getApprovedAt()));
             vo.setEvidenceStatus(evidence == null ? "pending" : evidence.getOnchainStatus());
             vo.setTxHash(evidence == null ? null : evidence.getTxHash());
             vo.setDigest(evidence == null ? null : evidence.getDigest());
-            vo.setVerified(evidence != null && volunteer != null && evidence.getDigest() != null
-                && evidence.getDigest().equals(blockchainService.buildDigest(completion, activity, volunteer)));
+            vo.setVerified(
+                evidence != null
+                    && volunteer != null
+                    && evidence.getDigest() != null
+                    && evidence.getDigest().equals(blockchainService.buildDigest(completion, activity, volunteer))
+            );
             result.add(vo);
         }
         return result;
     }
 
     @Override
-    public List<PlatformVOs.ActivityVO> listPublicActivities(String keyword, Integer limit) {
-        int safeLimit = limit == null ? 60 : Math.max(1, Math.min(limit, 100));
+    public List<PlatformVOs.ActivityVO> listPublicActivities(String keyword, Integer limit, Integer organizationId) {
+        int safeLimit = limit == null ? 60 : Math.max(1, Math.min(limit, 200));
         LambdaQueryWrapper<Activity> query = new LambdaQueryWrapper<Activity>()
-            .eq(Activity::getReviewStatus, "approved")
+            .eq(Activity::getReviewStatus, REVIEW_APPROVED)
             .orderByAsc(Activity::getStartDate)
             .orderByDesc(Activity::getPublishDate)
             .last("LIMIT " + safeLimit);
+
+        if (organizationId != null) {
+            query.eq(Activity::getOrganizationId, organizationId);
+        }
         if (keyword != null && !keyword.isBlank()) {
             String needle = keyword.trim();
             query.and(wrapper -> wrapper
@@ -143,6 +157,7 @@ public class PublicServiceImpl implements PublicService {
             .values()
             .stream()
             .collect(Collectors.toMap(Organization::getOrganizationId, Organization::getOrganizationName, (left, right) -> left));
+
         return activities.stream()
             .map(activity -> toPublicActivityVO(activity, organizationNames.get(activity.getOrganizationId())))
             .toList();
@@ -151,7 +166,7 @@ public class PublicServiceImpl implements PublicService {
     @Override
     public PlatformVOs.ActivityVO getPublicActivity(Integer id) {
         Activity activity = activityMapper.selectById(id);
-        if (activity == null || !"approved".equals(activity.getReviewStatus())) {
+        if (activity == null || !REVIEW_APPROVED.equals(activity.getReviewStatus())) {
             throw new BusinessException("公开活动不存在");
         }
         Organization organization = activity.getOrganizationId() == null ? null : organizationMapper.selectById(activity.getOrganizationId());
@@ -161,15 +176,17 @@ public class PublicServiceImpl implements PublicService {
     @Override
     public List<PlatformVOs.ActivityRegistrationVO> listPublicActivityRegistrations(Integer activityId) {
         Activity activity = activityMapper.selectById(activityId);
-        if (activity == null || !"approved".equals(activity.getReviewStatus())) {
+        if (activity == null || !REVIEW_APPROVED.equals(activity.getReviewStatus())) {
             throw new BusinessException("公开活动不存在");
         }
+
         List<ActivityParticipation> participations = participationMapper.selectList(new LambdaQueryWrapper<ActivityParticipation>()
             .eq(ActivityParticipation::getActivityId, activityId)
             .orderByDesc(ActivityParticipation::getParticipationDate));
         if (participations.isEmpty()) {
             return List.of();
         }
+
         Map<Integer, User> users = mapUsers(participations.stream().map(ActivityParticipation::getUserId).toList());
         return participations.stream()
             .map(participation -> toActivityRegistrationVO(participation, activity, users.get(participation.getUserId())))
@@ -177,26 +194,44 @@ public class PublicServiceImpl implements PublicService {
     }
 
     @Override
-    public List<PlatformVOs.OrganizationVO> listPublicOrganizations(String keyword) {
+    public List<PlatformVOs.OrganizationVO> listPublicOrganizations(String keyword, Integer organizationId) {
         List<Organization> organizations = organizationMapper.selectList(new LambdaQueryWrapper<Organization>()
             .orderByDesc(Organization::getCreatedAt)
             .orderByAsc(Organization::getOrganizationName));
-        Map<Integer, Long> publicActivityCounts = activityMapper.selectList(new LambdaQueryWrapper<Activity>()
-                .eq(Activity::getReviewStatus, "approved"))
-            .stream()
-            .collect(Collectors.groupingBy(Activity::getOrganizationId, Collectors.counting()));
+        Map<Integer, Long> publicActivityCounts = buildPublicActivityCountMap();
+        Map<Integer, Long> volunteerCounts = buildVolunteerCountMap();
 
         return organizations.stream()
+            .filter(organization -> organizationId == null || Objects.equals(organization.getOrganizationId(), organizationId))
             .filter(organization -> matchOrganizationKeyword(organization, keyword))
-            .map(organization -> toPublicOrganizationVO(organization, publicActivityCounts.getOrDefault(organization.getOrganizationId(), 0L)))
+            .map(organization -> toPublicOrganizationVO(
+                organization,
+                publicActivityCounts.getOrDefault(organization.getOrganizationId(), 0L),
+                volunteerCounts.getOrDefault(organization.getOrganizationId(), 0L)
+            ))
             .toList();
+    }
+
+    @Override
+    public PlatformVOs.OrganizationVO getPublicOrganization(Integer id) {
+        Organization organization = organizationMapper.selectById(id);
+        if (organization == null) {
+            throw new BusinessException("公益组织不存在");
+        }
+        Map<Integer, Long> publicActivityCounts = buildPublicActivityCountMap();
+        Map<Integer, Long> volunteerCounts = buildVolunteerCountMap();
+        return toPublicOrganizationVO(
+            organization,
+            publicActivityCounts.getOrDefault(organization.getOrganizationId(), 0L),
+            volunteerCounts.getOrDefault(organization.getOrganizationId(), 0L)
+        );
     }
 
     @Override
     public List<PlatformVOs.EvidenceVO> listPublicEvidences(Integer limit, String status, Integer organizationId, String keyword) {
         int safeLimit = limit == null ? 20 : Math.max(1, Math.min(limit, 100));
         LambdaQueryWrapper<BlockchainEvidence> query = new LambdaQueryWrapper<BlockchainEvidence>()
-            .eq(BlockchainEvidence::getBizType, "completion")
+            .eq(BlockchainEvidence::getBizType, EVIDENCE_BIZ_COMPLETION)
             .orderByDesc(BlockchainEvidence::getCreatedAt)
             .last("LIMIT " + Math.max(50, safeLimit * 3));
         if (status != null && !status.isBlank()) {
@@ -220,7 +255,7 @@ public class PublicServiceImpl implements PublicService {
             .map(evidence -> toEvidenceVO(evidence, completionMap.get(evidence.getBizId()), activityMap, userMap, organizationMap))
             .filter(Objects::nonNull)
             .filter(vo -> organizationId == null || Objects.equals(vo.getOrganizationId(), organizationId))
-            .filter(vo -> matchKeyword(vo, keyword))
+            .filter(vo -> matchEvidenceKeyword(vo, keyword))
             .limit(safeLimit)
             .toList();
     }
@@ -246,6 +281,57 @@ public class PublicServiceImpl implements PublicService {
         return vo;
     }
 
+    private PlatformVOs.ActivityVO toPublicActivityVO(Activity activity, String organizationName) {
+        PlatformVOs.ActivityVO vo = new PlatformVOs.ActivityVO();
+        vo.setActivityId(activity.getActivityId());
+        vo.setOrganizationId(activity.getOrganizationId());
+        vo.setOrganizationName(organizationName);
+        vo.setActivityName(activity.getActivityName());
+        vo.setDescription(activity.getDescription());
+        vo.setStartDate(formatDateTime(activity.getStartDate()));
+        vo.setEndDate(formatDateTime(activity.getEndDate()));
+        vo.setPublishDate(formatDateTime(activity.getPublishDate()));
+        vo.setLocation(activity.getLocation());
+        vo.setContactName(activity.getContactName());
+        vo.setContactPhone(activity.getContactPhone());
+        vo.setCategoryTags(activity.getCategoryTags());
+        vo.setImagePath(activity.getImagePath());
+        vo.setMaxParticipants(activity.getMaxParticipants());
+        vo.setCurrentParticipants(activity.getCurrentParticipants());
+        vo.setRequestedRewardPoints(activity.getRequestedRewardPoints());
+        vo.setApprovedRewardPoints(activity.getApprovedRewardPoints());
+        vo.setEnrollDeadline(formatDateTime(activity.getEnrollDeadline()));
+        vo.setReviewStatus(activity.getReviewStatus());
+        vo.setStatus(resolveActivityStatus(activity));
+        vo.setJoined(Boolean.FALSE);
+        return vo;
+    }
+
+    private PlatformVOs.OrganizationVO toPublicOrganizationVO(Organization organization, Long publicActivityCount, Long volunteerCount) {
+        PlatformVOs.OrganizationVO vo = new PlatformVOs.OrganizationVO();
+        vo.setOrganizationId(organization.getOrganizationId());
+        vo.setOrganizationName(organization.getOrganizationName());
+        vo.setOrganizationDescription(organization.getOrganizationDescription());
+        vo.setAvatarPath(organization.getAvatarPath());
+        vo.setPublicActivityCount(publicActivityCount == null ? 0 : publicActivityCount.intValue());
+        vo.setVolunteerCount(volunteerCount == null ? 0 : volunteerCount.intValue());
+        return vo;
+    }
+
+    private PlatformVOs.ActivityRegistrationVO toActivityRegistrationVO(ActivityParticipation participation, Activity activity, User user) {
+        PlatformVOs.ActivityRegistrationVO vo = new PlatformVOs.ActivityRegistrationVO();
+        vo.setParticipationId(participation.getParticipationId());
+        vo.setActivityId(participation.getActivityId());
+        vo.setActivityDate(formatDate(activity.getStartDate()));
+        vo.setSessionTime(buildSessionTime(activity));
+        vo.setUsername(user == null ? "志愿者" : user.getUsername());
+        vo.setPositionName("志愿服务岗");
+        vo.setServiceHours(calculateServiceHours(activity));
+        vo.setSignupTime(formatDateTime(participation.getParticipationDate()));
+        vo.setSignupMethod("申请加入");
+        return vo;
+    }
+
     private PlatformVOs.EvidenceVO toEvidenceVO(
         BlockchainEvidence evidence,
         ActivityCompletion completion,
@@ -256,6 +342,7 @@ public class PublicServiceImpl implements PublicService {
         if (completion == null) {
             return null;
         }
+
         Activity activity = activityMap.get(completion.getActivityId());
         User volunteer = userMap.get(completion.getUserId());
         Organization organization = activity == null ? null : organizationMap.get(activity.getOrganizationId());
@@ -277,15 +364,19 @@ public class PublicServiceImpl implements PublicService {
         vo.setOnchainStatus(evidence.getOnchainStatus());
         vo.setErrorMessage(evidence.getErrorMessage());
         vo.setReviewerName(evidence.getReviewerName());
-        vo.setReviewedAt(evidence.getReviewedAt() == null ? null : evidence.getReviewedAt().format(DATE_TIME_FORMATTER));
-        vo.setOnchainAt(evidence.getOnchainAt() == null ? null : evidence.getOnchainAt().format(DATE_TIME_FORMATTER));
+        vo.setReviewedAt(formatDateTime(evidence.getReviewedAt()));
+        vo.setOnchainAt(formatDateTime(evidence.getOnchainAt()));
         vo.setStoragePath(evidence.getStoragePath());
-        vo.setVerified(activity != null && volunteer != null && evidence.getDigest() != null
-            && evidence.getDigest().equals(blockchainService.buildDigest(completion, activity, volunteer)));
+        vo.setVerified(
+            activity != null
+                && volunteer != null
+                && evidence.getDigest() != null
+                && evidence.getDigest().equals(blockchainService.buildDigest(completion, activity, volunteer))
+        );
         return vo;
     }
 
-    private boolean matchKeyword(PlatformVOs.EvidenceVO vo, String keyword) {
+    private boolean matchEvidenceKeyword(PlatformVOs.EvidenceVO vo, String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return true;
         }
@@ -294,10 +385,6 @@ public class PublicServiceImpl implements PublicService {
             || contains(vo.getOrganizationName(), needle)
             || contains(vo.getUsername(), needle)
             || contains(vo.getDigest(), needle);
-    }
-
-    private boolean contains(String value, String needle) {
-        return value != null && value.toLowerCase().contains(needle);
     }
 
     private boolean matchOrganizationKeyword(Organization organization, String keyword) {
@@ -309,119 +396,109 @@ public class PublicServiceImpl implements PublicService {
             || contains(organization.getOrganizationDescription(), needle);
     }
 
-    private PlatformVOs.ActivityVO toPublicActivityVO(Activity activity, String organizationName) {
-        PlatformVOs.ActivityVO vo = new PlatformVOs.ActivityVO();
-        vo.setActivityId(activity.getActivityId());
-        vo.setOrganizationId(activity.getOrganizationId());
-        vo.setOrganizationName(organizationName);
-        vo.setActivityName(activity.getActivityName());
-        vo.setDescription(activity.getDescription());
-        vo.setStartDate(activity.getStartDate() == null ? null : activity.getStartDate().format(DATE_TIME_FORMATTER));
-        vo.setEndDate(activity.getEndDate() == null ? null : activity.getEndDate().format(DATE_TIME_FORMATTER));
-        vo.setPublishDate(activity.getPublishDate() == null ? null : activity.getPublishDate().format(DATE_TIME_FORMATTER));
-        vo.setLocation(activity.getLocation());
-        vo.setContactName(activity.getContactName());
-        vo.setContactPhone(activity.getContactPhone());
-        vo.setCategoryTags(activity.getCategoryTags());
-        vo.setImagePath(activity.getImagePath());
-        vo.setMaxParticipants(activity.getMaxParticipants());
-        vo.setCurrentParticipants(activity.getCurrentParticipants());
-        vo.setRequestedRewardPoints(activity.getRequestedRewardPoints());
-        vo.setApprovedRewardPoints(activity.getApprovedRewardPoints());
-        vo.setEnrollDeadline(activity.getEnrollDeadline() == null ? null : activity.getEnrollDeadline().format(DATE_TIME_FORMATTER));
-        vo.setReviewStatus(activity.getReviewStatus());
-        vo.setStatus(resolveActivityStatus(activity));
-        vo.setJoined(Boolean.FALSE);
-        return vo;
+    private boolean contains(String value, String needle) {
+        return value != null && value.toLowerCase().contains(needle);
     }
 
-    private PlatformVOs.OrganizationVO toPublicOrganizationVO(Organization organization, Long publicActivityCount) {
-        PlatformVOs.OrganizationVO vo = new PlatformVOs.OrganizationVO();
-        vo.setOrganizationId(organization.getOrganizationId());
-        vo.setOrganizationName(organization.getOrganizationName());
-        vo.setOrganizationDescription(organization.getOrganizationDescription());
-        vo.setAvatarPath(organization.getAvatarPath());
-        vo.setPublicActivityCount(publicActivityCount == null ? 0 : publicActivityCount.intValue());
-        return vo;
+    private Map<Integer, Long> buildPublicActivityCountMap() {
+        return activityMapper.selectList(new LambdaQueryWrapper<Activity>()
+                .eq(Activity::getReviewStatus, REVIEW_APPROVED))
+            .stream()
+            .collect(Collectors.groupingBy(Activity::getOrganizationId, Collectors.counting()));
     }
 
-    private PlatformVOs.ActivityRegistrationVO toActivityRegistrationVO(ActivityParticipation participation, Activity activity, User user) {
-        PlatformVOs.ActivityRegistrationVO vo = new PlatformVOs.ActivityRegistrationVO();
-        vo.setParticipationId(participation.getParticipationId());
-        vo.setActivityId(participation.getActivityId());
-        vo.setActivityDate(activity.getStartDate() == null ? null : activity.getStartDate().format(DATE_FORMATTER));
-        vo.setSessionTime(buildSessionTime(activity));
-        vo.setUsername(user == null ? "志愿者" : user.getUsername());
-        vo.setPositionName("志愿服务岗");
-        vo.setServiceHours(calculateServiceHours(activity));
-        vo.setSignupTime(participation.getParticipationDate() == null ? null : participation.getParticipationDate().format(DATE_TIME_FORMATTER));
-        vo.setSignupMethod("申请加入");
-        return vo;
+    private Map<Integer, Long> buildVolunteerCountMap() {
+        Map<Integer, Long> result = new LinkedHashMap<>();
+
+        userMapper.selectList(new LambdaQueryWrapper<User>().isNotNull(User::getOrganizationId))
+            .forEach(user -> result.merge(user.getOrganizationId(), 1L, Long::sum));
+
+        List<ActivityParticipation> participations = participationMapper.selectList(null);
+        if (participations.isEmpty()) {
+            return result;
+        }
+
+        Map<Integer, Activity> activityMap = mapActivities(participations.stream().map(ActivityParticipation::getActivityId).toList());
+        participations.forEach(participation -> {
+            Activity activity = activityMap.get(participation.getActivityId());
+            if (activity != null && activity.getOrganizationId() != null) {
+                result.merge(activity.getOrganizationId(), 1L, Long::sum);
+            }
+        });
+        return result;
+    }
+
+    private Map<Integer, Activity> mapActivities(List<Integer> activityIds) {
+        List<Integer> ids = activityIds == null ? List.of() : activityIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return activityMapper.selectList(new LambdaQueryWrapper<Activity>().in(Activity::getActivityId, ids)).stream()
+            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getActivityId(), item), Map::putAll);
+    }
+
+    private Map<Integer, User> mapUsers(List<Integer> userIds) {
+        List<Integer> ids = userIds == null ? List.of() : userIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return userMapper.selectList(new LambdaQueryWrapper<User>().in(User::getUserId, ids)).stream()
+            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getUserId(), item), Map::putAll);
+    }
+
+    private Map<Integer, Organization> mapOrganizations(List<Integer> organizationIds) {
+        List<Integer> ids = organizationIds == null ? List.of() : organizationIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return organizationMapper.selectBatchIds(ids).stream()
+            .filter(Objects::nonNull)
+            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getOrganizationId(), item), Map::putAll);
+    }
+
+    private Map<Integer, BlockchainEvidence> mapEvidencesByBizIds(List<Integer> bizIds) {
+        List<Integer> ids = bizIds == null ? List.of() : bizIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return blockchainEvidenceMapper.selectList(new LambdaQueryWrapper<BlockchainEvidence>()
+                .eq(BlockchainEvidence::getBizType, EVIDENCE_BIZ_COMPLETION)
+                .in(BlockchainEvidence::getBizId, ids))
+            .stream()
+            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getBizId(), item), Map::putAll);
+    }
+
+    private String resolveActivityStatus(Activity activity) {
+        LocalDateTime now = LocalDateTime.now();
+        if (activity.getEndDate() != null && activity.getEndDate().isBefore(now)) {
+            return "completed";
+        }
+        if (activity.getStartDate() != null && activity.getStartDate().isAfter(now)) {
+            return "pending";
+        }
+        return "ongoing";
     }
 
     private String buildSessionTime(Activity activity) {
         if (activity.getStartDate() == null || activity.getEndDate() == null) {
             return "-";
         }
-        return activity.getStartDate().format(DateTimeFormatter.ofPattern("HH:mm"))
-            + "-"
-            + activity.getEndDate().format(DateTimeFormatter.ofPattern("HH:mm"));
+        return activity.getStartDate().format(TIME_FORMATTER) + "-" + activity.getEndDate().format(TIME_FORMATTER);
     }
 
     private Integer calculateServiceHours(Activity activity) {
         if (activity.getStartDate() == null || activity.getEndDate() == null) {
             return null;
         }
-        long hours = java.time.Duration.between(
-            activity.getStartDate().toLocalTime(),
-            activity.getEndDate().toLocalTime()
-        ).toHours();
+        long hours = Duration.between(activity.getStartDate().toLocalTime(), activity.getEndDate().toLocalTime()).toHours();
         return (int) Math.max(1, hours);
     }
 
-    private String resolveActivityStatus(Activity activity) {
-        if (activity.getEndDate() != null && activity.getEndDate().isBefore(java.time.LocalDateTime.now())) {
-            return "completed";
-        }
-        if (activity.getStartDate() != null && activity.getStartDate().isAfter(java.time.LocalDateTime.now())) {
-            return "pending";
-        }
-        return "ongoing";
+    private String formatDate(LocalDateTime value) {
+        return value == null ? null : value.format(DATE_FORMATTER);
     }
 
-    private Map<Integer, Activity> mapActivities(List<Integer> activityIds) {
-        if (activityIds == null || activityIds.isEmpty()) {
-            return Map.of();
-        }
-        return activityMapper.selectList(new LambdaQueryWrapper<Activity>().in(Activity::getActivityId, activityIds)).stream()
-            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getActivityId(), item), Map::putAll);
-    }
-
-    private Map<Integer, User> mapUsers(List<Integer> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return Map.of();
-        }
-        return userMapper.selectList(new LambdaQueryWrapper<User>().in(User::getUserId, userIds)).stream()
-            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getUserId(), item), Map::putAll);
-    }
-
-    private Map<Integer, Organization> mapOrganizations(List<Integer> organizationIds) {
-        if (organizationIds == null || organizationIds.isEmpty()) {
-            return Map.of();
-        }
-        return organizationMapper.selectBatchIds(organizationIds.stream().filter(Objects::nonNull).distinct().toList()).stream()
-            .filter(Objects::nonNull)
-            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getOrganizationId(), item), Map::putAll);
-    }
-
-    private Map<Integer, BlockchainEvidence> mapEvidencesByBizIds(List<Integer> bizIds) {
-        if (bizIds == null || bizIds.isEmpty()) {
-            return Map.of();
-        }
-        return blockchainEvidenceMapper.selectList(new LambdaQueryWrapper<BlockchainEvidence>()
-                .eq(BlockchainEvidence::getBizType, "completion")
-                .in(BlockchainEvidence::getBizId, bizIds))
-            .stream()
-            .collect(LinkedHashMap::new, (map, item) -> map.put(item.getBizId(), item), Map::putAll);
+    private String formatDateTime(LocalDateTime value) {
+        return value == null ? null : value.format(DATE_TIME_FORMATTER);
     }
 }

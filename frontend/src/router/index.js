@@ -5,6 +5,7 @@ import Register from '../views/Register.vue'
 import PublicActivities from '../views/PublicActivities.vue'
 import ActivityDetail from '../views/ActivityDetail.vue'
 import PublicOrganizations from '../views/PublicOrganizations.vue'
+import OrganizationDetail from '../views/OrganizationDetail.vue'
 import Publicity from '../views/Publicity.vue'
 import StaticPortalPage from '../views/StaticPortalPage.vue'
 import VolunteerHome from '../views/VolunteerHome.vue'
@@ -20,6 +21,7 @@ const routes = [
   { path: '/activities', name: 'PublicActivities', component: PublicActivities },
   { path: '/activities/:id', name: 'ActivityDetail', component: ActivityDetail },
   { path: '/organizations', name: 'PublicOrganizations', component: PublicOrganizations },
+  { path: '/organizations/:id', name: 'OrganizationDetail', component: OrganizationDetail },
   { path: '/publicity', name: 'Publicity', component: Publicity },
   { path: '/stations', name: 'Stations', component: StaticPortalPage, meta: { pageKey: 'stations' } },
   { path: '/notices', name: 'Notices', component: StaticPortalPage, meta: { pageKey: 'notices' } },

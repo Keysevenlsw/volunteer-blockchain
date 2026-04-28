@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS points_records (
     user_id INT NOT NULL,
     organization_id INT NULL,
     points INT NOT NULL,
-    transaction_type ENUM('earned', 'spent') NOT NULL,
+    transaction_type ENUM('earned', 'spent', 'refund') NOT NULL,
     source VARCHAR(255) NOT NULL,
     reference_type VARCHAR(50),
     reference_id INT,

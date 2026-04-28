@@ -1,7 +1,10 @@
 <template>
   <PortalLayout
     active-key="activities"
-    :breadcrumb-items="['志愿活动', '志愿活动详情']"
+    :breadcrumb-items="[
+      { label: '志愿活动', path: '/activities' },
+      { label: '志愿活动详情' }
+    ]"
     breadcrumb-back-text="返回上一页"
   >
     <section class="detail-page">
