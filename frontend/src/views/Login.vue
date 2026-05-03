@@ -65,11 +65,11 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import PortalLayout from '../components/PortalLayout.vue'
-import { clearAuth, getWorkspaceRoute, hasRole, login, saveAuth } from '../api/auth'
+import { clearAuth, consumeLoginNotice, getWorkspaceRoute, hasRole, login, saveAuth } from '../api/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -96,6 +96,13 @@ watch(
     activeRole.value = normalizeRole(value)
   }
 )
+
+onMounted(() => {
+  const notice = consumeLoginNotice()
+  if (notice) {
+    ElMessage.warning(notice)
+  }
+})
 
 function normalizeRole(value) {
   if (value === 'organization_admin') {

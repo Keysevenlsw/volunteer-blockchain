@@ -12,7 +12,7 @@ import VolunteerHome from '../views/VolunteerHome.vue'
 import OrganizationHome from '../views/OrganizationHome.vue'
 import ReviewerHome from '../views/ReviewerHome.vue'
 import AdminHome from '../views/AdminHome.vue'
-import { getCachedUser, getToken, getWorkspaceRoute, hasPermission, hasRole } from '../api/auth'
+import { getCachedUser, getToken, getWorkspaceRoute, hasPermission, hasRole, setLoginNotice } from '../api/auth'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -70,7 +70,11 @@ router.beforeEach((to, from, next) => {
   const requiredPermissions = normalizeMetaCodes(to.meta.permissions)
 
   if (to.meta.requiresAuth && !token) {
-    next('/login')
+    setLoginNotice('请登录后再试！')
+    next({
+      path: '/login',
+      query: requiredRoles.includes('organization_admin') ? { role: 'organization_admin' } : { role: 'volunteer' }
+    })
     return
   }
 

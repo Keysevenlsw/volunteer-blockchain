@@ -1,4 +1,4 @@
-import { clearAuth, getToken } from './auth'
+import { clearAuth, getToken, redirectToLogin } from './auth'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
@@ -29,6 +29,7 @@ async function request(path, options = {}) {
   if (!response.ok || !result.success) {
     if (response.status === 401 || (result.message || '').includes('登录')) {
       clearAuth()
+      redirectToLogin('volunteer')
     }
     throw new Error(result.message || '请求失败')
   }

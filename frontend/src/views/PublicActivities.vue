@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PortalLayout :active-key="pageActiveKey" :breadcrumb="isRewardsPanel ? '积分商城' : '志愿活动'">
     <section class="activity-page">
       <div class="portal-shell">
@@ -26,7 +26,7 @@
                 <h2>{{ product.productName }}</h2>
                 <p>{{ product.productDescription || '暂无商品说明' }}</p>
                 <el-button v-if="isVolunteer" type="primary" :disabled="product.stock <= 0" @click="handleRedeem(product)">立即兑换</el-button>
-                <el-button v-else type="primary" plain @click="router.push('/login?role=volunteer')">登录后兑换</el-button>
+                <el-button v-else type="primary" plain @click="redirectToLogin('volunteer')">登录后兑换</el-button>
               </div>
             </article>
           </div>
@@ -194,7 +194,7 @@ import PortalLayout from '../components/PortalLayout.vue'
 import StatusBadge from '../components/StatusBadge.vue'
 import { getPublicActivities } from '../api/public'
 import { getVolunteerActivities, getVolunteerProducts, redeemProduct } from '../api/platform'
-import { getCachedUser, getToken, hasRole } from '../api/auth'
+import { getCachedUser, getToken, hasRole, redirectToLogin } from '../api/auth'
 import { formatDateTime } from '../utils/ui'
 
 const router = useRouter()
@@ -349,7 +349,7 @@ function goDetail(activity) {
 
 function splitTags(value) {
   return String(value || '')
-    .split(/[,，]/)
+    .split(/[,，/]/)
     .map((item) => item.trim())
     .filter(Boolean)
 }
@@ -543,11 +543,12 @@ function resolveImage(path) {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .query-range :deep(.el-date-editor) {
   width: 152px;
+  flex: 0 0 152px;
 }
 
 .query-panel :deep(.el-input__wrapper) {
@@ -781,8 +782,12 @@ function resolveImage(path) {
   .project-grid,
   .product-grid,
   .query-panel,
-  .query-range,
   .query-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .query-range {
     display: grid;
     grid-template-columns: 1fr;
   }
@@ -815,3 +820,4 @@ function resolveImage(path) {
   }
 }
 </style>
+

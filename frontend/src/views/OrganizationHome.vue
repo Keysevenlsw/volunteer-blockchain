@@ -32,7 +32,11 @@
             <el-table :data="joinRequests" empty-text="暂无成员申请">
               <el-table-column prop="username" label="申请人" width="130" />
               <el-table-column prop="applyReason" label="申请说明" min-width="240" show-overflow-tooltip />
-              <el-table-column label="状态" width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('joinRequest', row.status).label" :tone="getStatusMeta('joinRequest', row.status).tone" /></template></el-table-column>
+              <el-table-column label="状态" width="120">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('joinRequest', row.status).label" :tone="getStatusMeta('joinRequest', row.status).tone" />
+                </template>
+              </el-table-column>
               <el-table-column label="操作" width="210">
                 <template #default="{ row }">
                   <el-button size="small" type="success" :disabled="row.status !== 'pending'" @click="reviewJoin(row, 'approved')">通过</el-button>
@@ -43,7 +47,7 @@
           </section>
 
           <section v-else-if="activeTab === 'activities'" class="panel">
-            <div class="panel-head"><h2>活动草稿与提审</h2><el-button type="primary" @click="openActivityDialog()">新建活动</el-button></div>
+            <div class="panel-head"><h2>活动草稿与提交</h2><el-button type="primary" @click="openActivityDialog()">新建活动</el-button></div>
             <div class="card-grid">
               <article v-for="activity in activities" :key="activity.activityId" class="work-card">
                 <div class="card-topline">
@@ -82,7 +86,7 @@
           </section>
 
           <section v-else-if="activeTab === 'products'" class="panel">
-            <div class="panel-head"><h2>商品草稿与提审</h2><el-button type="primary" @click="openProductDialog()">新建商品</el-button></div>
+            <div class="panel-head"><h2>商品草稿与提交</h2><el-button type="primary" @click="openProductDialog()">新建商品</el-button></div>
             <div class="card-grid">
               <article v-for="product in products" :key="product.productId" class="work-card">
                 <div class="card-topline">
@@ -107,7 +111,11 @@
               <el-table-column prop="username" label="志愿者" width="120" />
               <el-table-column prop="productName" label="商品" min-width="160" />
               <el-table-column prop="pointsCost" label="积分" width="90" />
-              <el-table-column label="状态" width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('redemption', row.status).label" :tone="getStatusMeta('redemption', row.status).tone" /></template></el-table-column>
+              <el-table-column label="状态" width="120">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('redemption', row.status).label" :tone="getStatusMeta('redemption', row.status).tone" />
+                </template>
+              </el-table-column>
               <el-table-column label="操作" width="190">
                 <template #default="{ row }">
                   <el-button size="small" type="success" :disabled="row.status !== 'pending'" @click="updateRedemption(row, 'fulfilled')">发放</el-button>
@@ -121,10 +129,18 @@
             <div class="panel-head"><h2>链上存证监控</h2><el-button @click="refreshAll">刷新</el-button></div>
             <el-table :data="evidences" empty-text="暂无存证记录">
               <el-table-column prop="bizId" label="业务 ID" width="100" />
-              <el-table-column label="状态" width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('evidence', row.onchainStatus).label" :tone="getStatusMeta('evidence', row.onchainStatus).tone" /></template></el-table-column>
+              <el-table-column label="状态" width="120">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('evidence', row.onchainStatus).label" :tone="getStatusMeta('evidence', row.onchainStatus).tone" />
+                </template>
+              </el-table-column>
               <el-table-column prop="txHash" label="交易哈希" min-width="220" show-overflow-tooltip />
               <el-table-column prop="errorMessage" label="错误信息" min-width="180" show-overflow-tooltip />
-              <el-table-column label="操作" width="110"><template #default="{ row }"><el-button size="small" type="primary" plain :disabled="row.onchainStatus !== 'failed'" @click="handleRetry(row)">重试</el-button></template></el-table-column>
+              <el-table-column label="操作" width="110">
+                <template #default="{ row }">
+                  <el-button size="small" type="primary" plain :disabled="row.onchainStatus !== 'failed'" @click="handleRetry(row)">重试</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </section>
 
@@ -190,7 +206,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import StatusBadge from '../components/StatusBadge.vue'
-import { clearAuth, getCachedUser, getCurrentUser, getToken, saveAuth } from '../api/auth'
+import { clearAuth, getCachedUser, getCurrentUser, getToken, redirectToLogin, saveAuth } from '../api/auth'
 import {
   createActivity,
   createProduct,
@@ -231,9 +247,9 @@ const productForm = reactive(createEmptyProductForm())
 const tabs = [
   { key: 'overview', label: '组织概览' },
   { key: 'members', label: '成员申请审核' },
-  { key: 'activities', label: '活动草稿/提审' },
+  { key: 'activities', label: '活动草稿/提交' },
   { key: 'reviews', label: '完成报告审核' },
-  { key: 'products', label: '商品草稿/提审' },
+  { key: 'products', label: '商品草稿/提交' },
   { key: 'redemptions', label: '兑换履约' },
   { key: 'evidences', label: '链上存证监控' },
   { key: 'settings', label: '组织设置' }
@@ -281,7 +297,7 @@ async function loadProfile() {
   const token = getToken()
   if (!token) {
     clearAuth()
-    router.push('/login?role=organization_admin')
+    redirectToLogin('organization_admin')
     return
   }
   try {
@@ -291,7 +307,7 @@ async function loadProfile() {
   } catch (error) {
     clearAuth()
     ElMessage.error(error.message || '登录状态已失效')
-    router.push('/login?role=organization_admin')
+    redirectToLogin('organization_admin')
   }
 }
 
@@ -320,7 +336,9 @@ async function reviewJoin(row, status) {
     ElMessage.success(`已${action}申请`)
     await refreshAll()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 
@@ -378,7 +396,9 @@ async function handleDeleteActivity(row) {
     ElMessage.success('活动已删除')
     await refreshAll()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '删除失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '删除失败')
+    }
   }
 }
 
@@ -390,7 +410,9 @@ async function reviewCompletionItem(row, status) {
     ElMessage.success(`已${action}完成报告`)
     await refreshAll()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 
@@ -441,7 +463,9 @@ async function handleDeleteProduct(row) {
     ElMessage.success('商品已删除')
     await refreshAll()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '删除失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '删除失败')
+    }
   }
 }
 

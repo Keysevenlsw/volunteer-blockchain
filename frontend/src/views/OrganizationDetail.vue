@@ -3,7 +3,7 @@
     active-key="organizations"
     :breadcrumb-items="[
       { label: '志愿组织', path: '/organizations' },
-      { label: '组织详情' }
+      { label: '志愿组织详情' }
     ]"
     breadcrumb-back-text="返回上一页"
   >
@@ -17,44 +17,66 @@
               <img v-if="organization.avatarPath" :src="resolveImage(organization.avatarPath)" :alt="organization.organizationName" />
               <span v-else>{{ organization.organizationName?.slice(0, 1) || '志' }}</span>
             </div>
+
             <div class="org-hero__main">
               <h1>{{ organization.organizationName }}</h1>
-              <p>{{ organization.organizationDescription || '该组织已参与平台志愿服务认证。' }}</p>
-              <div class="org-hero__metrics">
-                <div>
-                  <span>志愿者数</span>
-                  <strong>{{ organization.volunteerCount ?? 0 }}</strong>
-                </div>
-                <div>
-                  <span>志愿活动数</span>
-                  <strong>{{ organization.publicActivityCount ?? 0 }}</strong>
-                </div>
+              <div class="org-hero__facts">
+                <p>组织编号：{{ organization.organizationId }}</p>
+                <p>志愿活动数：{{ organization.publicActivityCount ?? 0 }}</p>
+                <p>志愿者数：{{ organization.volunteerCount ?? 0 }}</p>
               </div>
+            </div>
+
+            <div class="org-hero__action">
+              <el-button type="primary" size="large" :loading="joining" @click="handleJoinOrganization">加入组织</el-button>
             </div>
           </section>
 
-          <section class="org-section">
-            <h2>公开活动</h2>
-            <div v-if="activityLoading" class="portal-loading">正在加载组织活动...</div>
-            <div v-else class="org-activity-grid">
-              <article
-                v-for="activity in activities"
-                :key="activity.activityId"
-                class="org-activity-card"
-                role="button"
-                tabindex="0"
-                @click="router.push(`/activities/${activity.activityId}`)"
-                @keyup.enter="router.push(`/activities/${activity.activityId}`)"
-              >
-                <h3>{{ activity.activityName }}</h3>
-                <p>{{ activity.description || '暂无活动说明' }}</p>
-                <div class="org-activity-meta">
-                  <span>积分：{{ activity.approvedRewardPoints ?? activity.requestedRewardPoints ?? 0 }}</span>
-                  <span>地点：{{ activity.location || '待公布' }}</span>
+          <section class="info-grid">
+            <article class="info-card">
+              <h2>组织负责人</h2>
+              <div class="info-card__content">
+                <strong>{{ organizationLeader }}</strong>
+              </div>
+            </article>
+            <article class="info-card">
+              <h2>组织地址</h2>
+              <div class="info-card__content">
+                <strong>{{ organizationAddress }}</strong>
+              </div>
+            </article>
+          </section>
+
+          <section class="tabs-section">
+            <el-tabs v-model="activeTab" class="org-tabs" stretch>
+              <el-tab-pane label="组织简介" name="intro">
+                <div class="tab-panel">
+                  <p>{{ organization.organizationDescription || '该组织已参与平台志愿服务认证，长期开展公益志愿服务活动。' }}</p>
                 </div>
-              </article>
-            </div>
-            <EmptyState v-if="!activityLoading && !activities.length" mark="活" title="暂无公开活动" description="该组织当前还没有公开活动。" />
+              </el-tab-pane>
+              <el-tab-pane label="发布活动" name="activities">
+                <div v-if="activityLoading" class="portal-loading">正在加载组织活动...</div>
+                <div v-else class="org-activity-grid">
+                  <article
+                    v-for="activity in activities"
+                    :key="activity.activityId"
+                    class="org-activity-card"
+                    role="button"
+                    tabindex="0"
+                    @click="router.push(`/activities/${activity.activityId}`)"
+                    @keyup.enter="router.push(`/activities/${activity.activityId}`)"
+                  >
+                    <h3 :title="activity.activityName">{{ activity.activityName }}</h3>
+                    <p :title="activity.description || '暂无活动说明'">{{ activity.description || '暂无活动说明' }}</p>
+                    <div class="org-activity-meta">
+                      <span>积分：{{ activity.approvedRewardPoints ?? activity.requestedRewardPoints ?? 0 }}</span>
+                      <span :title="activity.location || '待公布'">地点：{{ activity.location || '待公布' }}</span>
+                    </div>
+                  </article>
+                </div>
+                <EmptyState v-if="!activityLoading && !activities.length" mark="活" title="暂无公开活动" description="该组织当前还没有公开活动。" />
+              </el-tab-pane>
+            </el-tabs>
           </section>
         </template>
 
@@ -65,12 +87,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import { getPublicActivities, getPublicOrganization } from '../api/public'
+import { createJoinRequest } from '../api/platform'
+import { getCachedUser, getToken, hasRole, redirectToLogin } from '../api/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -78,6 +102,23 @@ const organization = ref(null)
 const activities = ref([])
 const loading = ref(false)
 const activityLoading = ref(false)
+const joining = ref(false)
+const activeTab = ref('intro')
+const user = ref(getCachedUser())
+
+const organizationLeader = computed(() => {
+  if (!organization.value?.organizationName) {
+    return '组织负责人待公布'
+  }
+  return `${organization.value.organizationName}负责人`
+})
+
+const organizationAddress = computed(() => {
+  if (!organization.value?.organizationName) {
+    return '组织地址待公布'
+  }
+  return `${organization.value.organizationName}服务中心`
+})
 
 onMounted(loadPageData)
 
@@ -108,6 +149,41 @@ async function loadActivities() {
   }
 }
 
+async function handleJoinOrganization() {
+  user.value = getCachedUser()
+  if (!getToken() || !hasRole('volunteer', user.value)) {
+    redirectToLogin('volunteer')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确认申请加入“${organization.value.organizationName}”吗？提交后将由该组织管理员审核。`,
+      '加入组织',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+
+  joining.value = true
+  try {
+    await createJoinRequest({
+      organizationId: organization.value.organizationId,
+      applyReason: '来自公开组织详情页的加入申请'
+    })
+    ElMessage.success('加入申请已提交，等待组织管理员审核')
+  } catch (error) {
+    ElMessage.error(error.message || '加入组织失败')
+  } finally {
+    joining.value = false
+  }
+}
+
 function resolveImage(path) {
   if (!path) {
     return ''
@@ -131,23 +207,24 @@ function resolveImage(path) {
 
 .org-hero {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr) 180px;
   gap: 22px;
-  padding: 26px;
+  align-items: start;
+  padding: 24px;
   background: #fff;
   box-shadow: 0 10px 28px rgba(40, 40, 70, 0.08);
 }
 
 .org-hero__avatar {
-  width: 120px;
-  height: 120px;
+  width: 220px;
+  height: 220px;
   display: grid;
   place-items: center;
   overflow: hidden;
   border-radius: 8px;
   background: linear-gradient(135deg, #ffe2e5, #fff3e8);
   color: #df001b;
-  font-size: 48px;
+  font-size: 72px;
   font-weight: 700;
 }
 
@@ -159,59 +236,117 @@ function resolveImage(path) {
 
 .org-hero__main h1 {
   margin: 0;
-  color: #2f1e23;
-  font-size: 30px;
+  color: #25405b;
+  font-size: 24px;
+  font-weight: 500;
 }
 
-.org-hero__main p {
-  margin: 16px 0 0;
-  color: #666;
-  line-height: 1.8;
-}
-
-.org-hero__metrics {
+.org-hero__facts {
+  margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(2, 220px);
-  gap: 16px;
-  margin-top: 22px;
+  gap: 10px;
 }
 
-.org-hero__metrics div {
+.org-hero__facts p {
+  margin: 0;
+  color: #6b5960;
+  font-size: 15px;
+}
+
+.org-hero__action {
+  padding-top: 16px;
+  text-align: right;
+}
+
+.org-hero__action :deep(.el-button--primary) {
+  min-width: 140px;
+  height: 46px;
+  border-color: #e60012;
+  background: #e60012;
+  border-radius: 4px;
+}
+
+.info-grid {
   display: grid;
-  gap: 8px;
-  padding: 16px 18px;
-  border-radius: 8px;
-  background: #fff7f7;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px;
+  margin-top: 38px;
 }
 
-.org-hero__metrics span {
-  color: #888;
-  font-size: 13px;
+.info-card {
+  min-height: 160px;
+  padding: 24px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(40, 40, 70, 0.08);
 }
 
-.org-hero__metrics strong {
-  color: #df001b;
-  font-size: 26px;
+.info-card h2 {
+  margin: 0;
+  color: #e60012;
+  font-size: 18px;
 }
 
-.org-section {
-  margin-top: 34px;
+.info-card__content {
+  margin-top: 26px;
 }
 
-.org-section h2 {
-  margin: 0 0 18px;
-  color: #2f1e23;
-  font-size: 22px;
+.info-card__content strong {
+  color: #25405b;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.tabs-section {
+  margin-top: 36px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(40, 40, 70, 0.08);
+}
+
+.org-tabs :deep(.el-tabs__header) {
+  margin: 0;
+  padding: 0 24px;
+  background: #e60012;
+}
+
+.org-tabs :deep(.el-tabs__nav-wrap::after) {
+  display: none;
+}
+
+.org-tabs :deep(.el-tabs__item) {
+  height: 56px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+}
+
+.org-tabs :deep(.el-tabs__item.is-active) {
+  color: #fff;
+  font-weight: 600;
+}
+
+.org-tabs :deep(.el-tabs__active-bar) {
+  background: #ffbf2f;
+}
+
+.tab-panel {
+  padding: 28px 32px 36px;
+  color: #334455;
+  font-size: 16px;
+  line-height: 2;
+}
+
+.tab-panel p {
+  margin: 0;
 }
 
 .org-activity-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+  padding: 28px 32px 36px;
 }
 
 .org-activity-card {
-  min-height: 170px;
+  min-height: 180px;
   padding: 18px;
   border: 1px solid rgba(223, 0, 27, 0.12);
   border-radius: 8px;
@@ -228,9 +363,14 @@ function resolveImage(path) {
 }
 
 .org-activity-card p {
+  min-height: 72px;
   margin: 12px 0 0;
+  display: -webkit-box;
+  overflow: hidden;
   color: #666;
   line-height: 1.7;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .org-activity-meta {
@@ -243,14 +383,23 @@ function resolveImage(path) {
 }
 
 @media (max-width: 980px) {
+  .org-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .org-hero__avatar {
+    width: 180px;
+    height: 180px;
+  }
+
+  .info-grid,
   .org-activity-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
-  .org-hero,
-  .org-hero__metrics,
+  .info-grid,
   .org-activity-grid {
     grid-template-columns: 1fr;
   }

@@ -44,7 +44,7 @@
             <EmptyState v-if="!activityReviews.length" mark="审" title="暂无活动审核" description="组织提交活动审核后会在这里出现。" />
           </section>
 
-          <section v-if="activeTab === 'products'" class="review-panel">
+          <section v-else class="review-panel">
             <div class="panel-head">
               <h1>商品审核</h1>
               <el-button @click="loadReviews">刷新</el-button>
@@ -80,7 +80,7 @@ import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import StatusBadge from '../components/StatusBadge.vue'
 import { getActivityReviews, getProductReviews, reviewActivity, reviewProduct } from '../api/admin'
-import { clearAuth, getCachedUser, getCurrentUser, getToken, hasRole, saveAuth } from '../api/auth'
+import { clearAuth, getCachedUser, getCurrentUser, getToken, hasRole, redirectToLogin, saveAuth } from '../api/auth'
 import { getStatusMeta } from '../utils/ui'
 
 const router = useRouter()
@@ -112,7 +112,7 @@ async function loadProfile() {
   const token = getToken()
   if (!token) {
     clearAuth()
-    router.push('/login')
+    redirectToLogin('volunteer')
     return
   }
   try {
@@ -122,7 +122,7 @@ async function loadProfile() {
   } catch (error) {
     clearAuth()
     ElMessage.error(error.message || '登录状态已失效')
-    router.push('/login')
+    redirectToLogin('volunteer')
   }
 }
 
@@ -141,7 +141,7 @@ async function openActivityReview(item, status) {
     const promptOptions = status === 'approved'
       ? { inputPlaceholder: '请输入批准积分', inputValue: String(item.recommendedPoints ?? item.requestedRewardPoints ?? 0) }
       : { inputPlaceholder: '请输入审核说明' }
-    const { value } = await ElMessageBox.prompt(`确认${action}“${item.activityName}”？`, `${action}活动`, promptOptions)
+    const { value } = await ElMessageBox.prompt(`确认${action}“${item.activityName}”吗？`, `${action}活动`, promptOptions)
     await reviewActivity(item.activityId, {
       status,
       approvedRewardPoints: status === 'approved' ? Number(value || 0) : null,
@@ -150,14 +150,18 @@ async function openActivityReview(item, status) {
     ElMessage.success(`活动审核已${action}`)
     await loadReviews()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 
 async function handleProductReview(item, status) {
   try {
     const action = status === 'approved' ? '通过' : status === 'off_shelf' ? '下架' : '驳回'
-    const { value } = await ElMessageBox.prompt(`确认${action}“${item.productName}”？`, `${action}商品`, { inputPlaceholder: '请输入审核说明' })
+    const { value } = await ElMessageBox.prompt(`确认${action}“${item.productName}”吗？`, `${action}商品`, {
+      inputPlaceholder: '请输入审核说明'
+    })
     await reviewProduct(item.productId, {
       status,
       reviewNote: value || ''
@@ -165,7 +169,9 @@ async function handleProductReview(item, status) {
     ElMessage.success(`商品审核已${action}`)
     await loadReviews()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 </script>

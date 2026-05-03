@@ -3,7 +3,7 @@
     <section class="list-page">
       <div class="portal-shell">
         <div class="search-panel">
-          <div class="search-item">
+          <div class="search-item search-item--name">
             <label>组织名称</label>
             <el-input
               v-model="searchKeyword"
@@ -13,7 +13,7 @@
               @clear="handleSearch"
             />
           </div>
-          <div class="search-item">
+          <div class="search-item search-item--id">
             <label>组织编号</label>
             <el-input
               v-model="searchOrganizationId"
@@ -173,20 +173,18 @@ function resolveImage(path) {
 }
 
 .search-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px) auto;
-  gap: 18px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 24px;
-  padding: 18px 22px;
-  background: #fff;
-  box-shadow: 0 10px 24px rgba(40, 40, 70, 0.06);
+  gap: 18px 26px;
+  margin: 8px 0 30px;
+  padding: 16px 0;
 }
 
 .search-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .search-item label {
@@ -196,13 +194,37 @@ function resolveImage(path) {
   white-space: nowrap;
 }
 
-.search-item :deep(.el-input) {
-  flex: 1;
+.search-item--name :deep(.el-input) {
+  width: 274px;
+}
+
+.search-item--id :deep(.el-input) {
+  width: 274px;
+}
+
+.search-panel :deep(.el-input__wrapper) {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
 }
 
 .search-actions {
   display: flex;
   gap: 10px;
+}
+
+.search-actions :deep(.el-button) {
+  min-width: 64px;
+}
+
+.search-actions :deep(.el-button--primary) {
+  border-color: #e60012;
+  background: #e60012;
+}
+
+.search-actions :deep(.el-button:last-child) {
+  border-color: #d5d5d5;
+  background: #c9c9c9;
+  color: #fff;
 }
 
 .org-grid {
@@ -327,6 +349,11 @@ function resolveImage(path) {
   .org-grid {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .search-item--name :deep(.el-input),
+  .search-item--id :deep(.el-input) {
+    width: 100%;
   }
 }
 </style>

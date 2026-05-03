@@ -4,7 +4,13 @@
       <div class="portal-shell profile-layout" v-loading="pageLoading">
         <aside class="profile-sidebar">
           <div class="sidebar-title">个人中心</div>
-          <button v-for="item in menuItems" :key="item.key" type="button" :class="{ active: activeMenu === item.key, section: item.section }" @click="activeMenu = item.key">
+          <button
+            v-for="item in menuItems"
+            :key="item.key"
+            type="button"
+            :class="{ active: activeMenu === item.key, section: item.section }"
+            @click="activeMenu = item.key"
+          >
             {{ item.label }}
           </button>
         </aside>
@@ -17,10 +23,10 @@
             </div>
             <div class="profile-info">
               <h1>{{ user?.username || '志愿者' }}</h1>
-              <p><span>预备</span> 志愿者号：{{ user?.userId || user?.email || '-' }}</p>
+              <p><span>账号</span> 志愿者号：{{ user?.userId || user?.email || '-' }}</p>
               <p>{{ user?.email || '-' }} · 归属组织：{{ user?.organizationName || '暂未加入组织' }}</p>
               <div class="quick-actions">
-                <el-button type="primary" @click="router.push('/activities')">去参加活动</el-button>
+                <el-button type="primary" @click="router.push('/activities')">去参与活动</el-button>
                 <el-button @click="router.push('/organizations')">申请加入组织</el-button>
               </div>
             </div>
@@ -48,9 +54,13 @@
               <el-table-column prop="organizationName" label="组织" min-width="160" />
               <el-table-column prop="applyReason" label="申请说明" min-width="220" show-overflow-tooltip />
               <el-table-column label="状态" width="120">
-                <template #default="{ row }"><StatusBadge :label="getStatusMeta('joinRequest', row.status).label" :tone="getStatusMeta('joinRequest', row.status).tone" /></template>
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('joinRequest', row.status).label" :tone="getStatusMeta('joinRequest', row.status).tone" />
+                </template>
               </el-table-column>
-              <el-table-column label="申请时间" min-width="160"><template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template></el-table-column>
+              <el-table-column label="申请时间" min-width="160">
+                <template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template>
+              </el-table-column>
               <el-table-column prop="reviewNote" label="审核备注" min-width="180" show-overflow-tooltip />
             </el-table>
           </section>
@@ -60,8 +70,14 @@
             <el-table :data="myParticipations" empty-text="暂无报名记录">
               <el-table-column prop="activityName" label="活动" min-width="180" />
               <el-table-column prop="organizationName" label="组织" min-width="160" />
-              <el-table-column label="报名时间" min-width="160"><template #default="{ row }">{{ formatDateTime(row.participationDate) }}</template></el-table-column>
-              <el-table-column label="报告状态" width="130"><template #default="{ row }"><StatusBadge :label="getStatusMeta('completion', row.completionStatus || 'pending').label" :tone="getStatusMeta('completion', row.completionStatus || 'pending').tone" /></template></el-table-column>
+              <el-table-column label="报名时间" min-width="160">
+                <template #default="{ row }">{{ formatDateTime(row.participationDate) }}</template>
+              </el-table-column>
+              <el-table-column label="报告状态" width="130">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('completion', row.completionStatus || 'pending').label" :tone="getStatusMeta('completion', row.completionStatus || 'pending').tone" />
+                </template>
+              </el-table-column>
             </el-table>
           </section>
 
@@ -81,7 +97,7 @@
                 </div>
               </article>
             </div>
-            <EmptyState v-if="!myCompletions.length" mark="明" title="暂无服务明细" description="完成报告审核后会在这里形成服务记录。" />
+            <EmptyState v-if="!myCompletions.length" mark="服" title="暂无服务明细" description="完成报告审核后会在这里形成服务记录。" />
           </section>
 
           <section v-else-if="activeMenu === 'points'" class="profile-card">
@@ -97,10 +113,20 @@
             </div>
             <el-table :data="pointsRecords" empty-text="暂无积分流水">
               <el-table-column prop="source" label="来源" min-width="180" />
-              <el-table-column label="类型" width="100"><template #default="{ row }"><StatusBadge :label="getStatusMeta('points', row.transactionType).label" :tone="getStatusMeta('points', row.transactionType).tone" /></template></el-table-column>
+              <el-table-column label="类型" width="100">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('points', row.transactionType).label" :tone="getStatusMeta('points', row.transactionType).tone" />
+                </template>
+              </el-table-column>
               <el-table-column prop="points" label="积分" width="100" />
-              <el-table-column label="链上状态" width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('evidence', row.onchainStatus || 'success').label" :tone="getStatusMeta('evidence', row.onchainStatus || 'success').tone" /></template></el-table-column>
-              <el-table-column label="时间" min-width="160"><template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template></el-table-column>
+              <el-table-column label="链上状态" width="120">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('evidence', row.onchainStatus || 'success').label" :tone="getStatusMeta('evidence', row.onchainStatus || 'success').tone" />
+                </template>
+              </el-table-column>
+              <el-table-column label="时间" min-width="160">
+                <template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template>
+              </el-table-column>
             </el-table>
           </section>
 
@@ -110,8 +136,14 @@
               <el-table-column prop="productName" label="商品" min-width="180" />
               <el-table-column prop="organizationName" label="履约组织" min-width="160" />
               <el-table-column prop="pointsCost" label="消耗积分" width="100" />
-              <el-table-column label="状态" width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('redemption', row.status).label" :tone="getStatusMeta('redemption', row.status).tone" /></template></el-table-column>
-              <el-table-column label="申请时间" min-width="160"><template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template></el-table-column>
+              <el-table-column label="状态" width="120">
+                <template #default="{ row }">
+                  <StatusBadge :label="getStatusMeta('redemption', row.status).label" :tone="getStatusMeta('redemption', row.status).tone" />
+                </template>
+              </el-table-column>
+              <el-table-column label="申请时间" min-width="160">
+                <template #default="{ row }">{{ formatDateTime(row.createdAt) }}</template>
+              </el-table-column>
             </el-table>
           </section>
 
@@ -132,7 +164,7 @@ import { ElMessage } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import StatusBadge from '../components/StatusBadge.vue'
-import { clearAuth, getCachedUser, getCurrentUser, getToken, saveAuth } from '../api/auth'
+import { clearAuth, getCachedUser, getCurrentUser, getToken, redirectToLogin, saveAuth } from '../api/auth'
 import { getMyCompletions, getMyJoinRequests, getMyParticipations, getMyPointsBalance, getMyPointsRecords, getMyRedemptions } from '../api/platform'
 import { formatDateTime, getStatusMeta, shortHash } from '../utils/ui'
 
@@ -188,7 +220,7 @@ async function loadProfile() {
   const token = getToken()
   if (!token) {
     clearAuth()
-    router.push('/login?role=volunteer')
+    redirectToLogin('volunteer')
     return
   }
   try {
@@ -198,7 +230,7 @@ async function loadProfile() {
   } catch (error) {
     clearAuth()
     ElMessage.error(error.message || '登录状态已失效')
-    router.push('/login?role=volunteer')
+    redirectToLogin('volunteer')
   }
 }
 
@@ -379,77 +411,66 @@ async function refreshAll() {
 
 .service-list {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .service-card {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
   padding: 18px;
-  border: 1px solid rgba(223, 0, 27, 0.1);
+  border: 1px solid rgba(223, 0, 27, 0.08);
   border-radius: 8px;
   background: #fffafa;
 }
 
 .service-card h3 {
-  margin: 0;
+  margin: 0 0 10px;
 }
 
 .service-card p {
   margin: 8px 0 0;
   color: #666;
+  line-height: 1.7;
 }
 
 .service-side {
+  min-width: 180px;
   display: grid;
+  align-content: start;
+  gap: 10px;
   justify-items: end;
-  gap: 8px;
-  color: #777;
-  font-size: 13px;
 }
 
 .profile-section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 18px;
-}
-
-.profile-section-head h2 {
-  margin: 0;
 }
 
 .balance-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
-.balance-row strong {
-  margin-top: 8px;
-  font-size: 24px;
-}
-
-@media (max-width: 960px) {
+@media (max-width: 980px) {
   .profile-layout,
-  .profile-hero {
-    grid-template-columns: 1fr;
-  }
-
+  .profile-hero,
   .profile-stats,
   .balance-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
-  .profile-stats,
-  .balance-row,
-  .service-card {
     grid-template-columns: 1fr;
-    display: grid;
+  }
+
+  .service-card {
+    flex-direction: column;
+  }
+
+  .service-side {
+    justify-items: start;
   }
 }
 </style>

@@ -14,7 +14,7 @@
       <header class="admin-top">
         <div>
           <h1>{{ currentMenuLabel }}</h1>
-          <p>浅红主题后台，用于平台级审核、权限、积分和链上维护。</p>
+          <p>后台管理界面，用于平台级审核、权限、积分和链上维护。</p>
         </div>
         <div class="admin-actions">
           <span>{{ user?.username || '-' }}</span>
@@ -132,7 +132,7 @@
           </article>
           <article>
             <h3>历史积分迁移</h3>
-            <p>将历史积分初始化迁移到积分合约，按业务键幂等。</p>
+            <p>将历史积分初始化迁移到积分合约，按业务键幂等处理。</p>
             <el-button type="primary" plain :loading="maintenanceLoading" @click="runMigration">执行迁移</el-button>
           </article>
         </div>
@@ -210,7 +210,7 @@ import {
   updatePointsRule
 } from '../api/admin'
 import { getPublicEvidences } from '../api/public'
-import { clearAuth, getCachedUser, getCurrentUser, getToken, saveAuth } from '../api/auth'
+import { clearAuth, getCachedUser, getCurrentUser, getToken, redirectToLogin, saveAuth } from '../api/auth'
 import { getRoleLabel, getStatusMeta } from '../utils/ui'
 
 const router = useRouter()
@@ -277,7 +277,7 @@ async function loadProfile() {
   const token = getToken()
   if (!token) {
     clearAuth()
-    router.push('/login')
+    redirectToLogin('volunteer')
     return
   }
   try {
@@ -287,7 +287,7 @@ async function loadProfile() {
   } catch (error) {
     clearAuth()
     ElMessage.error(error.message || '登录状态已失效')
-    router.push('/login')
+    redirectToLogin('volunteer')
   }
 }
 
@@ -336,7 +336,7 @@ async function openRoleDialog(row) {
 
 async function submitUserRoles() {
   if (!selectedUser.value || !selectedRoleCodes.value.length) {
-    ElMessage.warning('请选择至少一个角色')
+    ElMessage.warning('请至少选择一个角色')
     return
   }
   try {
@@ -352,7 +352,7 @@ async function submitUserRoles() {
 async function handleActivityReview(item, status) {
   try {
     const action = status === 'approved' ? '通过' : status === 'escalated' ? '升级复审' : '驳回'
-    const { value } = await ElMessageBox.prompt(`确认${action}“${item.activityName}”？`, `${action}活动`, {
+    const { value } = await ElMessageBox.prompt(`确认${action}“${item.activityName}”吗？`, `${action}活动`, {
       inputPlaceholder: status === 'approved' ? '请输入批准积分' : '请输入审核说明',
       inputValue: status === 'approved' ? String(item.recommendedPoints ?? item.requestedRewardPoints ?? 0) : ''
     })
@@ -364,19 +364,25 @@ async function handleActivityReview(item, status) {
     ElMessage.success(`活动审核已${action}`)
     await loadReviews()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 
 async function handleProductReview(item, status) {
   try {
     const action = status === 'approved' ? '通过' : status === 'off_shelf' ? '下架' : '驳回'
-    const { value } = await ElMessageBox.prompt(`确认${action}“${item.productName}”？`, `${action}商品`, { inputPlaceholder: '请输入审核说明' })
+    const { value } = await ElMessageBox.prompt(`确认${action}“${item.productName}”吗？`, `${action}商品`, {
+      inputPlaceholder: '请输入审核说明'
+    })
     await reviewProduct(item.productId, { status, reviewNote: value || '' })
     ElMessage.success(`商品审核已${action}`)
     await loadReviews()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error(error.message || '审核失败')
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '审核失败')
+    }
   }
 }
 

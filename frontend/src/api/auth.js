@@ -2,6 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 
 export const TOKEN_KEY = 'volunteer_token'
 export const USER_KEY = 'volunteer_user'
+export const LOGIN_NOTICE_KEY = 'volunteer_login_notice'
 
 async function request(path, options = {}) {
   const { method = 'GET', body, token } = options
@@ -156,6 +157,34 @@ export function saveAuth(authResponse) {
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
+}
+
+export function setLoginNotice(message = '请登录后再试！') {
+  try {
+    sessionStorage.setItem(LOGIN_NOTICE_KEY, message)
+  } catch (error) {
+    // ignore storage errors
+  }
+}
+
+export function consumeLoginNotice() {
+  try {
+    const message = sessionStorage.getItem(LOGIN_NOTICE_KEY)
+    if (message) {
+      sessionStorage.removeItem(LOGIN_NOTICE_KEY)
+    }
+    return message || ''
+  } catch (error) {
+    return ''
+  }
+}
+
+export function redirectToLogin(role = 'volunteer', message = '请登录后再试！') {
+  setLoginNotice(message)
+  const query = role === 'organization_admin' ? '?role=organization_admin' : '?role=volunteer'
+  if (typeof window !== 'undefined') {
+    window.location.href = `/login${query}`
+  }
 }
 
 export function getToken() {

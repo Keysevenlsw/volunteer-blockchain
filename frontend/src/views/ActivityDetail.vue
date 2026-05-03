@@ -42,7 +42,7 @@
             </div>
 
             <div class="detail-action">
-              <el-button type="primary" size="large" :loading="joining" @click="handleJoin">报名信息</el-button>
+              <el-button type="primary" size="large" :loading="joining" @click="handleJoin">参与活动</el-button>
             </div>
           </section>
 
@@ -131,12 +131,12 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import EmptyState from '../components/EmptyState.vue'
 import PortalLayout from '../components/PortalLayout.vue'
 import { getPublicActivity, getPublicActivityRegistrations } from '../api/public'
 import { joinActivity } from '../api/platform'
-import { getCachedUser, getToken, hasRole } from '../api/auth'
+import { getCachedUser, getToken, hasRole, redirectToLogin } from '../api/auth'
 import { formatDateTime } from '../utils/ui'
 
 const route = useRoute()
@@ -179,18 +179,34 @@ async function loadRegistrations() {
 }
 
 async function handleJoin() {
+  user.value = getCachedUser()
   if (!getToken() || !hasRole('volunteer', user.value)) {
-    router.push('/login?role=volunteer')
+    redirectToLogin('volunteer')
     return
   }
+
+  try {
+    await ElMessageBox.confirm(
+      `确认参与“${activity.value.activityName}”吗？提交后将由该组织管理员审核。`,
+      '参与活动',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+  } catch {
+    return
+  }
+
   joining.value = true
   try {
     await joinActivity(activity.value.activityId)
-    ElMessage.success('报名成功')
+    ElMessage.success('参与申请已提交，等待组织管理员审核')
     activeTab.value = 'signup'
     await loadPageData()
   } catch (error) {
-    ElMessage.error(error.message || '报名失败')
+    ElMessage.error(error.message || '参与活动失败')
   } finally {
     joining.value = false
   }
@@ -207,7 +223,7 @@ async function copyActivityId() {
 
 function splitTags(value) {
   return String(value || '')
-    .split(/[,，]/)
+    .split(/[,，/]/)
     .map((item) => item.trim())
     .filter(Boolean)
 }
@@ -418,169 +434,164 @@ function resolveImage(path) {
 }
 
 .info-card h2 {
-  margin: 0 0 20px;
+  margin: 0;
   color: #e60012;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .info-card strong {
-  color: #21313d;
-  font-size: 17px;
+  display: block;
+  margin-top: 26px;
+  color: #25405b;
+  font-size: 18px;
+  line-height: 1.6;
 }
 
 .info-card p {
   margin: 12px 0 0;
-  color: #555;
+  color: #6b5960;
   line-height: 1.7;
 }
 
 .position-section {
-  margin-top: 48px;
+  margin-top: 38px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(40, 40, 70, 0.08);
 }
 
 .position-section h2 {
   margin: 0;
-  padding: 14px 20px;
-  background: #ffe7e9;
+  padding: 18px 22px;
+  background: #fff2f2;
   color: #333;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 500;
-}
-
-.position-table,
-.signup-table {
-  background: #fff;
 }
 
 .position-head,
 .position-row {
   display: grid;
-  grid-template-columns: 1.1fr 1.8fr 1.4fr;
-  gap: 24px;
+  grid-template-columns: 220px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
   padding: 18px 22px;
 }
 
 .position-head {
-  background: #f4f4f4;
-  color: #999;
-  font-weight: 700;
+  color: #9aa3ad;
+  background: #fafafa;
+  font-weight: 600;
 }
 
 .position-row {
-  min-height: 120px;
-  align-items: center;
-  color: #666;
-  line-height: 1.8;
+  color: #334455;
+  line-height: 1.9;
 }
 
-.position-row p {
+.position-row p,
+.position-row span {
   margin: 0;
 }
 
 .tabs-section {
-  margin-top: 44px;
+  margin-top: 38px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(40, 40, 70, 0.08);
 }
 
 .tabs-header {
   display: flex;
   align-items: center;
+  gap: 0;
+  padding: 0 18px;
   background: #e60012;
 }
 
 .tabs-header button {
-  position: relative;
-  height: 58px;
-  padding: 0 38px;
+  min-width: 132px;
+  height: 56px;
+  padding: 0 18px;
   border: 0;
   background: transparent;
-  color: #fff;
-  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 18px;
-  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabs-header button.active {
+  position: relative;
+  color: #fff;
+  font-weight: 600;
 }
 
 .tabs-header button.active::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 18px;
   right: 18px;
   bottom: 0;
   height: 4px;
-  background: #ffbf1e;
+  background: #ffbf2f;
 }
 
 .tabs-body {
-  padding: 22px 28px 28px;
-  background: #fff;
+  padding: 28px 32px 36px;
 }
 
 .tabs-body h3 {
-  margin: 0 0 20px;
+  margin: 0 0 26px;
+  color: #2d3f56;
   font-size: 18px;
 }
 
 .intro-content {
-  color: #333;
-  font-size: 15px;
+  color: #334455;
   line-height: 2;
+  font-size: 16px;
 }
 
 .intro-content p {
   margin: 0 0 8px;
 }
 
+.signup-table {
+  color: #334455;
+}
+
 .signup-head,
 .signup-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1.1fr 1.2fr 1fr;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
-  padding: 16px 24px;
 }
 
 .signup-head {
-  background: #f4f4f4;
-  color: #9aa4b2;
-  font-size: 15px;
-  font-weight: 700;
+  padding: 16px 22px;
+  background: #fafafa;
+  color: #9aa3ad;
+  font-weight: 600;
 }
 
 .signup-row {
-  border-bottom: 1px solid #ececec;
-  color: #42546a;
+  padding: 18px 22px;
+  border-top: 1px solid #f0f0f0;
 }
 
-@media (max-width: 1180px) {
-  .summary-list {
+@media (max-width: 1100px) {
+  .detail-hero {
     grid-template-columns: 1fr;
   }
 
-  .signup-head,
-  .signup-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
-}
 
-@media (max-width: 980px) {
-  .detail-hero,
-  .info-grid,
   .position-head,
   .position-row,
   .signup-head,
   .signup-row {
     grid-template-columns: 1fr;
-  }
-
-  .detail-action {
-    text-align: left;
-  }
-
-  .tabs-header {
-    overflow: auto;
-  }
-
-  .tabs-header button {
-    flex: 0 0 auto;
   }
 }
 </style>

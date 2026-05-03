@@ -1,0 +1,924 @@
+
+> frontend@0.0.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m4066[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m13:35:28[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.vue, /src/App.vue?vue&type=style&index=0&lang.css[22m
+[2m13:35:28[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to resolve import "./components/GlobalFooter.vue" from "src/App.vue". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/App.vue[39m:9:26
+[33m  1  |  import GlobalFooter from './components/GlobalFooter.vue'
+     |                            ^
+  2  |  
+  3  |  const _sfc_main = {[39m
+      at TransformPluginContext._formatLog (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:28999:43)
+      at TransformPluginContext.error (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:28996:14)
+      at normalizeUrl (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:27119:18)
+      at async file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:27177:32
+      at async Promise.all (index 0)
+      at async TransformPluginContext.transform (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:27145:4)
+      at async EnvironmentPluginContainer.transform (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:28797:14)
+      at async loadAndTransform (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:22670:26)
+      at async viteTransformMiddleware (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:24542:20)
+[2m13:36:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/api/auth.js[22m
+[2m13:36:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/components/GlobalFooter.vue[22m
+[2m13:41:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/ReviewerHome.vue, /src/views/AdminHome.vue[22m
+[2m13:41:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/router/index.js[22m
+[2m13:41:05[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/ActivityDetail.vue, /src/views/OrganizationDetail.vue, /src/views/PublicActivities.vue, /src/views/OrganizationHome.vue, /src/views/VolunteerHome.vue[22m
+[2m13:47:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/OrganizationDetail.vue[22m
+[2m13:47:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/ActivityDetail.vue[22m
+[2m13:48:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/Login.vue[22m
+[2m13:48:49[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicOrganizations.vue?vue&type=style&index=0&scoped=8fbfbafc&lang.css[22m
+[2m13:50:08[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicActivities.vue[22m
+[2m13:50:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/PublicActivities.vue[39m:9:15
+[33m  7  |              <div>
+  8  |                <h1>绉垎鍟嗗煄</h1>
+  9  |                <p>鐧诲綍蹇楁効鑰呰处鍙峰悗鍙娇鐢ㄥ叕鐩婄Н鍒嗗厬鎹€?/p>
+     |                 ^
+  10 |              </div>
+  11 |              <div class="page-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:05:30[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicActivities.vue[22m
+[2m14:09:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/VolunteerHome.vue[22m
+[2m14:09:21[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:09:21[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/ReviewerHome.vue[22m
+[2m14:09:21[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Element is missing end tag.
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Error parsing JavaScript expression: Unterminated string constant. (1:32)
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:05[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:17:06[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:17:06[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:06[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:06[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:17:07[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:17:07[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:07[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:07[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:17:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:17:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:17:08[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:17:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicOrganizations.vue?vue&type=style&index=0&scoped=8fbfbafc&lang.css[22m
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Error parsing JavaScript expression: Unterminated string constant. (1:32)
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Element is missing end tag.
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31mInternal server error: Error parsing JavaScript expression: Unterminated string constant. (1:32)[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/VolunteerHome.vue[39m:15:45
+[33m  13 |            <section v-if="activeMenu === 'home'" class="profile-card profile-hero">
+  14 |              <div class="avatar-box">
+  15 |                <div class="avatar-circle">{{ user?.username?.slice(0, 1) || '蹇? }}</div>
+     |                                               ^
+  16 |                <button type="button">缂栬緫澶村儚</button>
+  17 |              </div>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at createExp (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3007:7)
+      at Object.oninterpolation (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2351:16)
+      at Tokenizer.stateInterpolationClose (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:596:18)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1097:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/ReviewerHome.vue[39m:3:34
+[33m  1  |  ﻿<template>
+  2  |    <PortalLayout active-key="home" breadcrumb="瀹℃牳宸ヤ綔鍙?>
+  3  |      <section class="reviewer-page" v-loading="pageLoading">
+     |                                    ^
+  4  |        <div class="portal-shell reviewer-layout">
+  5  |          <aside class="reviewer-side">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:18:44[22m [31m[1m[vite][22m[39m [31mInternal server error: Element is missing end tag.[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:17:11
+[33m  15 |          <div>
+  16 |            <h1>{{ currentMenuLabel }}</h1>
+  17 |            <p>娴呯孩涓婚鍚庡彴锛岀敤浜庡钩鍙扮骇瀹℃牳銆佹潈闄愩€佺Н鍒嗗拰閾句笂缁存姢銆?/p>
+     |             ^
+  18 |          </div>
+  19 |          <div class="admin-actions">[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at emitError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Object.onclosetag (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:2381:13)
+      at Tokenizer.stateInClosingTagName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:799:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1157:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+[2m14:29:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/ReviewerHome.vue, /src/views/ReviewerHome.vue?vue&type=style&index=0&scoped=14316836&lang.css[22m
+[2m14:29:22[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/VolunteerHome.vue, /src/views/VolunteerHome.vue?vue&type=style&index=0&scoped=f4c5b253&lang.css[22m
+[2m14:29:22[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+[2m14:29:22[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:120:49
+[33m  118 |            <el-table-column prop="maxPoints" label="最高积分" width="110" />
+  119 |            <el-table-column prop="escalationThreshold" label="复审阈值" width="110" />
+  120 |            <el-table-column label="鐘舵€? width="90"><template #default="{ row }">{{ row.status === 1 ? '鍚敤' : '鍋滅敤' }}...
+      |                                                   ^
+  121 |            <el-table-column label="鎿嶄綔" width="100"><template #default="{ row }"><el-button size="small" @click="openR...
+  122 |          </el-table>[39m
+[2m14:29:22[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:29:22[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:120:49
+[33m  118 |            <el-table-column prop="maxPoints" label="最高积分" width="110" />
+  119 |            <el-table-column prop="escalationThreshold" label="复审阈值" width="110" />
+  120 |            <el-table-column label="鐘舵€? width="90"><template #default="{ row }">{{ row.status === 1 ? '鍚敤' : '鍋滅敤' }}...
+      |                                                   ^
+  121 |            <el-table-column label="鎿嶄綔" width="100"><template #default="{ row }"><el-button size="small" @click="openR...
+  122 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:17[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:17[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:120:49
+[33m  118 |            <el-table-column prop="maxPoints" label="最高积分" width="110" />
+  119 |            <el-table-column prop="escalationThreshold" label="复审阈值" width="110" />
+  120 |            <el-table-column label="鐘舵€? width="90"><template #default="{ row }">{{ row.status === 1 ? '鍚敤' : '鍋滅敤' }}...
+      |                                                   ^
+  121 |            <el-table-column label="鎿嶄綔" width="100"><template #default="{ row }"><el-button size="small" @click="openR...
+  122 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:18[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:18[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:120:49
+[33m  118 |            <el-table-column prop="maxPoints" label="最高积分" width="110" />
+  119 |            <el-table-column prop="escalationThreshold" label="复审阈值" width="110" />
+  120 |            <el-table-column label="鐘舵€? width="90"><template #default="{ row }">{{ row.status === 1 ? '鍚敤' : '鍋滅敤' }}...
+      |                                                   ^
+  121 |            <el-table-column label="鎿嶄綔" width="100"><template #default="{ row }"><el-button size="small" @click="openR...
+  122 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:39[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:30:39[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:120:49
+[33m  118 |            <el-table-column prop="maxPoints" label="最高积分" width="110" />
+  119 |            <el-table-column prop="escalationThreshold" label="复审阈值" width="110" />
+  120 |            <el-table-column label="鐘舵€? width="90"><template #default="{ row }">{{ row.status === 1 ? '鍚敤' : '鍋滅敤' }}...
+      |                                                   ^
+  121 |            <el-table-column label="鎿嶄綔" width="100"><template #default="{ row }"><el-button size="small" @click="openR...
+  122 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:32:49[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+[2m14:32:49[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+[2m14:32:49[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:32:49[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:32:52[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/OrganizationHome.vue[39m:33:71
+[33m  31 |              <div class="panel-head"><h2>鎴愬憳鐢宠瀹℃牳</h2><el-button @click="refreshAll">鍒锋柊</el-button></div>
+  32 |              <el-table :data="joinRequests" empty-text="鏆傛棤鎴愬憳鐢宠">
+  33 |                <el-table-column prop="username" label="鐢宠浜? width="130" />
+     |                                                                         ^
+  34 |                <el-table-column prop="applyReason" label="鐢宠璇存槑" min-width="240" show-overflow-tooltip />
+  35 |                <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMet...[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:32:52[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:36:48[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/OrganizationHome.vue[22m
+[2m14:36:48[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+[2m14:36:49[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:37:35[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:37:36[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:37:36[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:37:37[22m [31m[1m[vite][22m[39m [31mInternal server error: Attribute name cannot contain U+0022 ("), U+0027 ('), and U+003C (<).[39m
+  Plugin: [35mvite:vue[39m
+  File: [36mD:/codes/volunteer-blockchain/frontend/src/views/AdminHome.vue[39m:147:50
+[33m  145 |            <el-table-column prop="activityName" label="娲诲姩" min-width="180" />
+  146 |            <el-table-column prop="organizationName" label="缁勭粐" min-width="160" />
+  147 |            <el-table-column label="鐘舵€? width="120"><template #default="{ row }"><StatusBadge :label="getStatusMeta('e...
+      |                                                    ^
+  148 |            <el-table-column prop="txHash" label="浜ゆ槗鍝堝笇" min-width="220" show-overflow-tooltip />
+  149 |          </el-table>[39m
+      at createCompilerError (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1378:17)
+      at Object.emitError [as onerr] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3014:5)
+      at Tokenizer.stateInAttrName (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:868:16)
+      at Tokenizer.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:1117:16)
+      at Object.baseParse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-core\dist\compiler-core.cjs.js:3053:13)
+      at Object.parse (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-dom\dist\compiler-dom.cjs.js:910:23)
+      at Object.parse$1 [as parse] (D:\codes\volunteer-blockchain\frontend\node_modules\@vue\compiler-sfc\dist\compiler-sfc.cjs.js:1824:24)
+      at createDescriptor (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:54:42)
+      at handleHotUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:1162:25)
+      at async handleHMRUpdate (file:///D:/codes/volunteer-blockchain/frontend/node_modules/vite/dist/node/chunks/config.js:26020:28)
+[2m14:41:03[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/AdminHome.vue[22m
+[2m14:48:59[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicActivities.vue[22m
+[2m14:49:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicActivities.vue?vue&type=style&index=0&scoped=7f858070&lang.css[22m
+[2m14:51:10[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/views/PublicActivities.vue[22m
