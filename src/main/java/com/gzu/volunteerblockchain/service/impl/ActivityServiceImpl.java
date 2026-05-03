@@ -804,7 +804,11 @@ public class ActivityServiceImpl implements ActivityService {
         if (organizationIds == null || organizationIds.isEmpty()) {
             return Map.of();
         }
-        return organizationMapper.selectBatchIds(organizationIds.stream().filter(Objects::nonNull).distinct().toList()).stream()
+        List<Integer> validIds = organizationIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (validIds.isEmpty()) {
+            return Map.of();
+        }
+        return organizationMapper.selectBatchIds(validIds).stream()
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(Organization::getOrganizationId, Organization::getOrganizationName, (left, right) -> left));
     }

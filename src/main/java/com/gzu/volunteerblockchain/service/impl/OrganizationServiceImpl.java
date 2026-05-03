@@ -5,23 +5,35 @@ import com.gzu.volunteerblockchain.common.AuthUser;
 import com.gzu.volunteerblockchain.common.RoleConstants;
 import com.gzu.volunteerblockchain.common.UserContext;
 import com.gzu.volunteerblockchain.dto.PlatformRequests;
+import com.gzu.volunteerblockchain.entity.Activity;
 import com.gzu.volunteerblockchain.entity.Organization;
 import com.gzu.volunteerblockchain.entity.OrganizationJoinRequest;
 import com.gzu.volunteerblockchain.entity.User;
 import com.gzu.volunteerblockchain.exception.BusinessException;
+import com.gzu.volunteerblockchain.mapper.ActivityMapper;
 import com.gzu.volunteerblockchain.mapper.OrganizationJoinRequestMapper;
 import com.gzu.volunteerblockchain.mapper.OrganizationMapper;
 import com.gzu.volunteerblockchain.mapper.UserMapper;
 import com.gzu.volunteerblockchain.service.OrganizationService;
 import com.gzu.volunteerblockchain.vo.PlatformVOs;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
@@ -31,15 +43,24 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final OrganizationMapper organizationMapper;
     private final OrganizationJoinRequestMapper joinRequestMapper;
     private final UserMapper userMapper;
+    private final ActivityMapper activityMapper;
+
+    @Value("${storage.upload-dir:src/main/resources/static/uploads}")
+    private String uploadDir;
+
+    @Value("${storage.avatar-dir:src/main/resources/static/uploads/avatars}")
+    private String avatarDir;
 
     public OrganizationServiceImpl(
         OrganizationMapper organizationMapper,
         OrganizationJoinRequestMapper joinRequestMapper,
-        UserMapper userMapper
+        UserMapper userMapper,
+        ActivityMapper activityMapper
     ) {
         this.organizationMapper = organizationMapper;
         this.joinRequestMapper = joinRequestMapper;
         this.userMapper = userMapper;
+        this.activityMapper = activityMapper;
     }
 
     @Override
@@ -61,11 +82,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
         Organization organization = requireOrganization(request.getOrganizationId());
-        Long pendingCount = joinRequestMapper.selectCount(new LambdaQueryWrapper<OrganizationJoinRequest>()
+        Long sameOrganizationPendingCount = joinRequestMapper.selectCount(new LambdaQueryWrapper<OrganizationJoinRequest>()
             .eq(OrganizationJoinRequest::getUserId, currentUser.getUserId())
+            .eq(OrganizationJoinRequest::getOrganizationId, organization.getOrganizationId())
             .eq(OrganizationJoinRequest::getStatus, "pending"));
-        if (pendingCount != null && pendingCount > 0) {
-            throw new BusinessException("你有待审核的组织申请，请先等待审核结果");
+        if (sameOrganizationPendingCount != null && sameOrganizationPendingCount > 0) {
+            throw new BusinessException("你已向该组织提交待审核申请，请勿重复提交");
         }
 
         OrganizationJoinRequest joinRequest = new OrganizationJoinRequest();
@@ -90,6 +112,68 @@ public class OrganizationServiceImpl implements OrganizationService {
             .stream()
             .map(item -> toJoinRequestVO(item, user.getUsername(), organizationNames.get(item.getOrganizationId())))
             .toList();
+    }
+
+    @Override
+    public PlatformVOs.OrganizationVO getMyOrganization() {
+        AuthUser currentUser = requireVolunteer();
+        User user = requireUser(currentUser.getUserId());
+        if (user.getOrganizationId() == null) {
+            return null;
+        }
+        return toOrganizationVO(requireOrganization(user.getOrganizationId()));
+    }
+
+    @Override
+    @Transactional
+    public void leaveMyOrganization() {
+        AuthUser currentUser = requireVolunteer();
+        User user = requireUser(currentUser.getUserId());
+        if (user.getOrganizationId() == null) {
+            throw new BusinessException("你暂未加入组织");
+        }
+        user.setOrganizationId(null);
+        userMapper.updateById(user);
+    }
+
+    @Override
+    public PlatformVOs.OrganizationVO getWorkbenchOrganization() {
+        AuthUser currentUser = requireOrganizationAdmin();
+        return toOrganizationVO(requireOrganization(currentUser.getOrganizationId()));
+    }
+
+    @Override
+    @Transactional
+    public PlatformVOs.OrganizationVO updateWorkbenchOrganization(PlatformRequests.OrganizationProfileUpdateRequest request) {
+        AuthUser currentUser = requireOrganizationAdmin();
+        Organization organization = requireOrganization(currentUser.getOrganizationId());
+        organization.setOrganizationName(trimRequired(request.getOrganizationName(), "组织名称不能为空"));
+        organization.setOrganizationDescription(trimToNull(request.getOrganizationDescription()));
+        organizationMapper.updateById(organization);
+        return toOrganizationVO(organization);
+    }
+
+    @Override
+    @Transactional
+    public PlatformVOs.OrganizationVO updateWorkbenchOrganizationAvatar(MultipartFile file) {
+        String contentType = file == null ? null : file.getContentType();
+        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
+            throw new BusinessException("组织头像文件必须是图片");
+        }
+
+        AuthUser currentUser = requireOrganizationAdmin();
+        Organization organization = requireOrganization(currentUser.getOrganizationId());
+        String oldAvatarPath = organization.getAvatarPath();
+        String newAvatarPath = storeAvatar(file);
+        try {
+            organization.setAvatarPath(newAvatarPath);
+            organizationMapper.updateById(organization);
+        } catch (RuntimeException ex) {
+            deleteUploadedFile(newAvatarPath);
+            throw ex;
+        }
+        deleteUploadedFile(oldAvatarPath);
+        return toOrganizationVO(organization);
     }
 
     @Override
@@ -135,10 +219,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         User user = requireUser(joinRequest.getUserId());
         if ("approved".equals(status)) {
             if (user.getOrganizationId() != null) {
+                deleteOtherJoinRequests(joinRequest);
                 throw new BusinessException("该用户已绑定默认归属组织");
             }
             user.setOrganizationId(joinRequest.getOrganizationId());
             userMapper.updateById(user);
+            deleteOtherJoinRequests(joinRequest);
         }
 
         return toJoinRequestVO(joinRequest, user.getUsername(), requireOrganization(joinRequest.getOrganizationId()).getOrganizationName());
@@ -150,7 +236,28 @@ public class OrganizationServiceImpl implements OrganizationService {
         vo.setOrganizationName(organization.getOrganizationName());
         vo.setOrganizationDescription(organization.getOrganizationDescription());
         vo.setAvatarPath(organization.getAvatarPath());
+        vo.setPublicActivityCount(countPublicActivities(organization.getOrganizationId()));
+        vo.setVolunteerCount(countVolunteers(organization.getOrganizationId()));
         return vo;
+    }
+
+    private void deleteOtherJoinRequests(OrganizationJoinRequest approvedRequest) {
+        joinRequestMapper.delete(new LambdaQueryWrapper<OrganizationJoinRequest>()
+            .eq(OrganizationJoinRequest::getUserId, approvedRequest.getUserId())
+            .ne(OrganizationJoinRequest::getId, approvedRequest.getId()));
+    }
+
+    private Integer countVolunteers(Integer organizationId) {
+        Long count = userMapper.selectCount(new LambdaQueryWrapper<User>()
+            .eq(User::getOrganizationId, organizationId));
+        return count == null ? 0 : count.intValue();
+    }
+
+    private Integer countPublicActivities(Integer organizationId) {
+        Long count = activityMapper.selectCount(new LambdaQueryWrapper<Activity>()
+            .eq(Activity::getOrganizationId, organizationId)
+            .eq(Activity::getReviewStatus, "approved"));
+        return count == null ? 0 : count.intValue();
     }
 
     private PlatformVOs.JoinRequestVO toJoinRequestVO(OrganizationJoinRequest item, String username, String organizationName) {
@@ -233,7 +340,83 @@ public class OrganizationServiceImpl implements OrganizationService {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    private String trimRequired(String value, String message) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new BusinessException(message);
+        }
+        return value.trim();
+    }
+
     private String format(LocalDateTime value) {
         return value == null ? null : value.format(DATE_TIME_FORMATTER);
+    }
+
+    private String storeAvatar(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("上传组织头像不能为空");
+        }
+
+        String extension = resolveImageExtension(file);
+        String filename = UUID.randomUUID().toString().replace("-", "") + extension;
+        Path basePath = Paths.get(avatarDir).toAbsolutePath().normalize();
+        Path targetFile = basePath.resolve(filename).normalize();
+
+        if (!targetFile.startsWith(basePath)) {
+            throw new BusinessException("非法组织头像文件路径");
+        }
+
+        try {
+            Files.createDirectories(basePath);
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            throw new BusinessException("组织头像保存失败: " + ex.getMessage());
+        }
+
+        return "/uploads/avatars/" + filename;
+    }
+
+    private String resolveImageExtension(MultipartFile file) {
+        String originalName = file.getOriginalFilename();
+        String extension = "";
+        if (originalName != null) {
+            int lastDot = originalName.lastIndexOf('.');
+            if (lastDot >= 0 && lastDot < originalName.length() - 1) {
+                extension = originalName.substring(lastDot).toLowerCase(Locale.ROOT);
+            }
+        }
+
+        Set<String> allowedExtensions = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp");
+        if (allowedExtensions.contains(extension)) {
+            return extension;
+        }
+
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        return switch (contentType) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/gif" -> ".gif";
+            case "image/webp" -> ".webp";
+            case "image/bmp" -> ".bmp";
+            default -> ".jpg";
+        };
+    }
+
+    private void deleteUploadedFile(String publicPath) {
+        if (publicPath == null || publicPath.isBlank() || !publicPath.startsWith("/uploads/")) {
+            return;
+        }
+
+        Path uploadRoot = Paths.get(uploadDir).toAbsolutePath().normalize();
+        String relativePath = publicPath.substring("/uploads/".length()).replace('\\', '/');
+        Path targetFile = uploadRoot.resolve(relativePath).normalize();
+        if (!targetFile.startsWith(uploadRoot)) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(targetFile);
+        } catch (IOException ex) {
+            // 删除旧组织头像失败不影响新头像生效。
+        }
     }
 }

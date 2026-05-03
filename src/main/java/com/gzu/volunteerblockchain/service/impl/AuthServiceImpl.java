@@ -3,8 +3,11 @@ package com.gzu.volunteerblockchain.service.impl;
 import com.gzu.volunteerblockchain.common.AuthUser;
 import com.gzu.volunteerblockchain.common.JwtUtil;
 import com.gzu.volunteerblockchain.common.RoleConstants;
+import com.gzu.volunteerblockchain.common.UserContext;
 import com.gzu.volunteerblockchain.dto.LoginRequest;
+import com.gzu.volunteerblockchain.dto.PasswordChangeRequest;
 import com.gzu.volunteerblockchain.dto.RegisterRequest;
+import com.gzu.volunteerblockchain.dto.UserProfileUpdateRequest;
 import com.gzu.volunteerblockchain.entity.JwtToken;
 import com.gzu.volunteerblockchain.entity.Organization;
 import com.gzu.volunteerblockchain.entity.User;
@@ -17,15 +20,28 @@ import com.gzu.volunteerblockchain.service.RbacService;
 import com.gzu.volunteerblockchain.vo.AuthResponse;
 import com.gzu.volunteerblockchain.vo.UserProfileVO;
 import io.jsonwebtoken.Claims;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final UserMapper userMapper;
     private final JwtTokenMapper jwtTokenMapper;
@@ -33,6 +49,12 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RbacService rbacService;
+
+    @Value("${storage.upload-dir:src/main/resources/static/uploads}")
+    private String uploadDir;
+
+    @Value("${storage.avatar-dir:src/main/resources/static/uploads/avatars}")
+    private String avatarDir;
 
     public AuthServiceImpl(
         UserMapper userMapper,
@@ -140,6 +162,69 @@ public class AuthServiceImpl implements AuthService {
         return toUserProfile(user);
     }
 
+    @Override
+    @Transactional
+    public UserProfileVO updateCurrentUserProfile(UserProfileUpdateRequest request) {
+        Integer userId = UserContext.getRequiredUser().getUserId();
+        User user = requireUser(userId);
+
+        String username = trimToNull(request.getUsername());
+        if (username != null) {
+            user.setUsername(username);
+        }
+
+        String email = trimToNull(request.getEmail());
+        if (email != null) {
+            email = normalizeEmail(email);
+            Long sameEmailCount = userMapper.countByEmailExcludingUserId(email, userId);
+            if (sameEmailCount != null && sameEmailCount > 0) {
+                throw new BusinessException("该邮箱已被其他用户使用");
+            }
+            user.setEmail(email);
+        }
+
+        userMapper.updateById(user);
+        return getCurrentUserProfile(userId);
+    }
+
+    @Override
+    @Transactional
+    public void changeCurrentUserPassword(PasswordChangeRequest request) {
+        Integer userId = UserContext.getRequiredUser().getUserId();
+        User user = requireUser(userId);
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+            throw new BusinessException("原密码不正确");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
+            throw new BusinessException("新密码不能与原密码相同");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userMapper.updateById(user);
+    }
+
+    @Override
+    @Transactional
+    public UserProfileVO updateCurrentUserAvatar(MultipartFile file) {
+        String contentType = file == null ? null : file.getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+            throw new BusinessException("头像文件必须是图片");
+        }
+
+        Integer userId = UserContext.getRequiredUser().getUserId();
+        User user = requireUser(userId);
+        String oldAvatarPath = user.getAvatarPath();
+        String newAvatarPath = storeAvatar(file);
+        try {
+            user.setAvatarPath(newAvatarPath);
+            userMapper.updateById(user);
+        } catch (RuntimeException ex) {
+            deleteUploadedFile(newAvatarPath);
+            throw ex;
+        }
+        deleteUploadedFile(oldAvatarPath);
+        return getCurrentUserProfile(userId);
+    }
+
     private UserProfileVO toUserProfile(User user) {
         AuthUser authUser = rbacService.buildAuthUser(user);
         String organizationName = findOrganizationName(user.getOrganizationId());
@@ -154,6 +239,8 @@ public class AuthServiceImpl implements AuthService {
         profile.setPermissions(authUser.getPermissions());
         profile.setOrganizationId(user.getOrganizationId());
         profile.setOrganizationName(organizationName);
+        profile.setAvatarPath(user.getAvatarPath());
+        profile.setJoinDate(formatDateTime(user.getJoinDate()));
         profile.setTotalPoints(user.getTotalPoints());
         return profile;
     }
@@ -207,5 +294,78 @@ public class AuthServiceImpl implements AuthService {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String formatDateTime(LocalDateTime value) {
+        return value == null ? null : value.format(DATE_TIME_FORMATTER);
+    }
+
+    private String storeAvatar(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("上传头像不能为空");
+        }
+
+        String extension = resolveImageExtension(file);
+        String filename = UUID.randomUUID().toString().replace("-", "") + extension;
+        Path basePath = Paths.get(avatarDir).toAbsolutePath().normalize();
+        Path targetFile = basePath.resolve(filename).normalize();
+
+        if (!targetFile.startsWith(basePath)) {
+            throw new BusinessException("非法头像文件路径");
+        }
+
+        try {
+            Files.createDirectories(basePath);
+            Files.copy(file.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            throw new BusinessException("头像保存失败: " + ex.getMessage());
+        }
+
+        return "/uploads/avatars/" + filename;
+    }
+
+    private String resolveImageExtension(MultipartFile file) {
+        String originalName = file.getOriginalFilename();
+        String extension = "";
+        if (originalName != null) {
+            int lastDot = originalName.lastIndexOf('.');
+            if (lastDot >= 0 && lastDot < originalName.length() - 1) {
+                extension = originalName.substring(lastDot).toLowerCase(Locale.ROOT);
+            }
+        }
+
+        Set<String> allowedExtensions = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp");
+        if (allowedExtensions.contains(extension)) {
+            return extension;
+        }
+
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        return switch (contentType) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            case "image/gif" -> ".gif";
+            case "image/webp" -> ".webp";
+            case "image/bmp" -> ".bmp";
+            default -> ".jpg";
+        };
+    }
+
+    private void deleteUploadedFile(String publicPath) {
+        if (publicPath == null || publicPath.isBlank() || !publicPath.startsWith("/uploads/")) {
+            return;
+        }
+
+        Path uploadRoot = Paths.get(uploadDir).toAbsolutePath().normalize();
+        String relativePath = publicPath.substring("/uploads/".length()).replace('\\', '/');
+        Path targetFile = uploadRoot.resolve(relativePath).normalize();
+        if (!targetFile.startsWith(uploadRoot)) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(targetFile);
+        } catch (IOException ex) {
+            // 删除旧头像失败不影响新头像生效。
+        }
     }
 }

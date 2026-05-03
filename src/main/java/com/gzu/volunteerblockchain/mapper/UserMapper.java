@@ -25,6 +25,14 @@ public interface UserMapper extends BaseMapper<User> {
         """)
     Long countByEmail(@Param("email") String email);
 
+    @Select("""
+        SELECT COUNT(1)
+        FROM users
+        WHERE email = #{email}
+          AND user_id <> #{userId}
+        """)
+    Long countByEmailExcludingUserId(@Param("email") String email, @Param("userId") Integer userId);
+
     @Update("""
         UPDATE users
         SET total_points = #{totalPoints}

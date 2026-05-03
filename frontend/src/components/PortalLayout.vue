@@ -17,9 +17,22 @@
         <img class="portal-logo-mark" src="/assets/branding/lianxin-gongyi-logo.png" alt="链信公益" />
         <div class="portal-userbar">
           <template v-if="user">
-            <span class="portal-userbar__hello">您好，{{ user.username }}</span>
-            <button type="button" class="portal-link" @click="goWorkspace">{{ workspaceText }}</button>
-            <button type="button" class="portal-link" @click="handleLogout">退出</button>
+            <el-dropdown class="portal-user-dropdown-trigger" trigger="click" popper-class="portal-user-dropdown" @command="handleUserCommand">
+              <button type="button" class="portal-user-pill" aria-label="点击展开用户菜单" title="点击展开用户菜单">
+                <span class="portal-userbar__hello">您好，{{ user.username }}</span>
+                <span class="portal-user-avatar">
+                  <img v-if="avatarUrl" :src="avatarUrl" :alt="user.username || '用户头像'" />
+                  <span v-else>{{ user.username?.slice(0, 1) || '志' }}</span>
+                </span>
+                <span class="portal-user-chevron" aria-hidden="true"></span>
+              </button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">{{ workspaceMenuLabel }}</el-dropdown-item>
+                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
           <template v-else>
             <button type="button" class="portal-link portal-link--strong" @click="router.push('/login')">请登录</button>
@@ -27,7 +40,6 @@
             <span class="portal-separator"></span>
             <button type="button" class="portal-link" @click="router.push('/register?role=organization_admin')">志愿组织注册</button>
           </template>
-          <button type="button" class="portal-search" aria-label="搜索">搜</button>
         </div>
       </div>
     </header>
@@ -55,9 +67,22 @@
           <img class="portal-logo-mark" src="/assets/branding/lianxin-gongyi-logo.png" alt="链信公益" />
           <div class="portal-userbar">
             <template v-if="user">
-              <span class="portal-userbar__hello">您好，{{ user.username }}</span>
-              <button type="button" class="portal-link" @click="goWorkspace">{{ workspaceText }}</button>
-              <button type="button" class="portal-link" @click="handleLogout">退出</button>
+              <el-dropdown class="portal-user-dropdown-trigger" trigger="click" popper-class="portal-user-dropdown" @command="handleUserCommand">
+                <button type="button" class="portal-user-pill" aria-label="点击展开用户菜单" title="点击展开用户菜单">
+                  <span class="portal-userbar__hello">您好，{{ user.username }}</span>
+                  <span class="portal-user-avatar">
+                    <img v-if="avatarUrl" :src="avatarUrl" :alt="user.username || '用户头像'" />
+                    <span v-else>{{ user.username?.slice(0, 1) || '志' }}</span>
+                  </span>
+                  <span class="portal-user-chevron" aria-hidden="true"></span>
+                </button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="profile">{{ workspaceMenuLabel }}</el-dropdown-item>
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
             <template v-else>
               <button type="button" class="portal-link portal-link--strong" @click="router.push('/login')">请登录</button>
@@ -65,7 +90,6 @@
               <span class="portal-separator"></span>
               <button type="button" class="portal-link" @click="router.push('/register?role=organization_admin')">志愿组织注册</button>
             </template>
-            <button type="button" class="portal-search" aria-label="搜索">搜</button>
           </div>
         </div>
       </header>
@@ -114,7 +138,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { clearAuth, getCachedUser, getCurrentUser, getToken, getWorkspaceRoute, hasRole, saveAuth } from '../api/auth'
+import { AUTH_UPDATED_EVENT, clearAuth, getCachedUser, getCurrentUser, getToken, getWorkspaceRoute, hasRole, saveAuth } from '../api/auth'
 
 const props = defineProps({
   home: {
@@ -163,22 +187,6 @@ const navItems = [
   { key: 'rules', label: '制度规范', path: '/rules' }
 ]
 
-const workspaceText = computed(() => {
-  if (!user.value) {
-    return '工作台'
-  }
-  if (hasRole('system_admin', user.value)) {
-    return '后台管理'
-  }
-  if (hasRole('activity_reviewer', user.value) || hasRole('product_reviewer', user.value)) {
-    return '审核工作台'
-  }
-  if (hasRole('organization_admin', user.value)) {
-    return '组织工作台'
-  }
-  return '个人中心'
-})
-
 const resolvedBreadcrumbItems = computed(() => {
   if (props.breadcrumbItems.length) {
     return props.breadcrumbItems.map((item) => {
@@ -195,6 +203,8 @@ const resolvedBreadcrumbItems = computed(() => {
 })
 
 const hasBreadcrumb = computed(() => resolvedBreadcrumbItems.value.length > 0)
+const avatarUrl = computed(() => resolveImage(user.value?.avatarPath))
+const workspaceMenuLabel = computed(() => (hasRole('organization_admin', user.value) ? '工作台' : '个人中心'))
 
 onMounted(() => {
   loadSession()
@@ -215,10 +225,12 @@ onMounted(() => {
   }
   handleScroll()
   window.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated)
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener(AUTH_UPDATED_EVENT, handleAuthUpdated)
   if (flipTimer) {
     window.clearTimeout(flipTimer)
   }
@@ -244,11 +256,25 @@ function goWorkspace() {
   router.push(getWorkspaceRoute(user.value))
 }
 
+function handleUserCommand(command) {
+  if (command === 'profile') {
+    goWorkspace()
+    return
+  }
+  if (command === 'logout') {
+    handleLogout()
+  }
+}
+
 function handleLogout() {
   clearAuth()
   user.value = null
   ElMessage.success('已退出登录')
   router.push('/')
+}
+
+function handleAuthUpdated(event) {
+  user.value = event.detail || getCachedUser()
 }
 
 function handleScroll() {
@@ -268,6 +294,17 @@ function setLastBannerMode(mode) {
   if (typeof window !== 'undefined') {
     window[BANNER_MODE_KEY] = mode
   }
+}
+
+function resolveImage(path) {
+  if (!path) {
+    return ''
+  }
+  if (/^https?:\/\//.test(path)) {
+    return path
+  }
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+  return path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`
 }
 </script>
 
@@ -380,10 +417,33 @@ function setLastBannerMode(mode) {
   right: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   color: #222;
   font-size: 15px;
   z-index: 3;
+}
+
+:global(.portal-userbar:has(.portal-user-avatar)) {
+  gap: 10px;
+  min-height: 54px;
+  padding: 5px 10px 5px 18px;
+  border: 1px solid rgba(216, 0, 27, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 22px rgba(125, 18, 28, 0.1);
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+:global(.portal-userbar:has(.portal-user-avatar):hover) {
+  background: #fff;
+  border-color: #df001b;
+  box-shadow: 0 10px 24px rgba(216, 0, 27, 0.18);
+  transform: translateY(-1px);
 }
 
 .portal-hero--compact .portal-userbar {
@@ -405,22 +465,154 @@ function setLastBannerMode(mode) {
   font-weight: 700;
 }
 
+.portal-userbar__hello {
+  min-width: 0;
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:global(.portal-userbar__hello) {
+  min-width: 0;
+  max-width: 210px;
+  overflow: hidden;
+  color: #111;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 32px));
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.portal-user-pill:hover,
+.portal-user-pill:focus-visible {
+  outline: none;
+}
+
+:global(.portal-userbar:has(.portal-user-avatar):hover .portal-user-chevron),
+.portal-user-pill:focus-visible .portal-user-chevron {
+  border-top-color: #df001b;
+  transform: translateY(2px);
+}
+
+:global(.portal-user-dropdown-trigger) {
+  display: inline-flex;
+  align-items: center;
+}
+
+:global(.portal-user-menu) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.portal-user-avatar {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffddd8, #fff3ef);
+  color: #d8001b;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px rgba(216, 0, 27, 0.18);
+}
+
+:global(.portal-user-avatar) {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffddd8, #fff3ef);
+  color: #d8001b;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px rgba(216, 0, 27, 0.18);
+}
+
+.portal-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:global(.portal-user-avatar img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portal-user-chevron {
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #9a3b43;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+:global(.portal-user-chevron) {
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #9a3b43;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+:global(.portal-user-dropdown .el-dropdown-menu__item) {
+  min-width: 118px;
+  color: #333;
+  font-size: 14px;
+}
+
+:global(.portal-user-dropdown .el-dropdown-menu__item:not(.is-disabled):focus),
+:global(.portal-user-dropdown .el-dropdown-menu__item:not(.is-disabled):hover) {
+  background: #fff1f1;
+  color: #d92727;
+}
+
 .portal-separator {
   width: 1px;
   height: 18px;
   background: rgba(216, 0, 27, 0.45);
-}
-
-.portal-search {
-  width: 58px;
-  height: 38px;
-  border: 0;
-  border-radius: 19px;
-  background: #df001b;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
 }
 
 .portal-nav {
@@ -538,8 +730,20 @@ function setLastBannerMode(mode) {
     width: 190px;
   }
 
-  .portal-search {
-    display: none;
+  .portal-user-pill {
+    min-height: 44px;
+    padding: 4px 10px 4px 14px;
+    gap: 8px;
+  }
+
+  .portal-userbar__hello {
+    max-width: 150px;
+  }
+
+  .portal-user-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
   }
 
   .portal-nav__item {

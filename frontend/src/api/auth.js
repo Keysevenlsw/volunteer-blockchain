@@ -3,11 +3,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 export const TOKEN_KEY = 'volunteer_token'
 export const USER_KEY = 'volunteer_user'
 export const LOGIN_NOTICE_KEY = 'volunteer_login_notice'
+export const AUTH_UPDATED_EVENT = 'volunteer-auth-updated'
 
 async function request(path, options = {}) {
-  const { method = 'GET', body, token } = options
-  const headers = {
-    'Content-Type': 'application/json'
+  const { method = 'GET', body, token, isForm = false } = options
+  const headers = {}
+
+  if (!isForm) {
+    headers['Content-Type'] = 'application/json'
   }
 
   if (token) {
@@ -17,7 +20,7 @@ async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined
+    body: body ? (isForm ? body : JSON.stringify(body)) : undefined
   })
 
   let result = null
@@ -141,6 +144,35 @@ export async function getCurrentUser(token) {
   return normalizeUser(user)
 }
 
+export async function updateCurrentUser(token, payload) {
+  const user = await request('/api/auth/me', {
+    method: 'PUT',
+    token,
+    body: payload
+  })
+  return normalizeUser(user)
+}
+
+export async function uploadCurrentUserAvatar(token, file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const user = await request('/api/auth/me/avatar', {
+    method: 'POST',
+    token,
+    body: formData,
+    isForm: true
+  })
+  return normalizeUser(user)
+}
+
+export async function changeCurrentUserPassword(token, payload) {
+  return request('/api/auth/me/password', {
+    method: 'POST',
+    token,
+    body: payload
+  })
+}
+
 export function saveAuth(authResponse) {
   if (authResponse?.token) {
     localStorage.setItem(TOKEN_KEY, authResponse.token)
@@ -152,11 +184,13 @@ export function saveAuth(authResponse) {
   } else {
     localStorage.removeItem(USER_KEY)
   }
+  emitAuthUpdated(normalizedUser)
 }
 
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(USER_KEY)
+  emitAuthUpdated(null)
 }
 
 export function setLoginNotice(message = '请登录后再试！') {
@@ -202,5 +236,11 @@ export function getCachedUser() {
   } catch (error) {
     clearAuth()
     return null
+  }
+}
+
+function emitAuthUpdated(user) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(AUTH_UPDATED_EVENT, { detail: user }))
   }
 }

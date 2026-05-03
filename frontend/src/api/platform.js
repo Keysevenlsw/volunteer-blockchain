@@ -58,6 +58,32 @@ export function getMyJoinRequests() {
   return request('/api/join-requests/mine')
 }
 
+export function getMyOrganization() {
+  return request('/api/organizations/mine')
+}
+
+export function leaveMyOrganization() {
+  return request('/api/organizations/mine/leave', { method: 'POST' })
+}
+
+export function getWorkbenchOrganization() {
+  return request('/api/organizations/workbench')
+}
+
+export function updateWorkbenchOrganization(payload) {
+  return request('/api/organizations/workbench', { method: 'PUT', body: payload })
+}
+
+export function uploadWorkbenchOrganizationAvatar(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request('/api/organizations/workbench/avatar', {
+    method: 'POST',
+    body: formData,
+    isForm: true
+  })
+}
+
 export function getOrganizationJoinRequests(status) {
   const suffix = status ? `?status=${encodeURIComponent(status)}` : ''
   return request(`/api/join-requests/organization${suffix}`)

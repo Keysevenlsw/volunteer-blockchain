@@ -11,9 +11,12 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 public class OrganizationController {
@@ -46,6 +49,39 @@ public class OrganizationController {
     @GetMapping("/api/join-requests/mine")
     public ApiResponse<List<PlatformVOs.JoinRequestVO>> myJoinRequests() {
         return ApiResponse.success(organizationService.listMyJoinRequests());
+    }
+
+    @RoleAllowed(RoleConstants.VOLUNTEER)
+    @GetMapping("/api/organizations/mine")
+    public ApiResponse<PlatformVOs.OrganizationVO> myOrganization() {
+        return ApiResponse.success(organizationService.getMyOrganization());
+    }
+
+    @RoleAllowed(RoleConstants.VOLUNTEER)
+    @PostMapping("/api/organizations/mine/leave")
+    public ApiResponse<Void> leaveMyOrganization() {
+        organizationService.leaveMyOrganization();
+        return ApiResponse.success("已退出组织", null);
+    }
+
+    @RoleAllowed(RoleConstants.ORGANIZATION_ADMIN)
+    @GetMapping("/api/organizations/workbench")
+    public ApiResponse<PlatformVOs.OrganizationVO> workbenchOrganization() {
+        return ApiResponse.success(organizationService.getWorkbenchOrganization());
+    }
+
+    @RoleAllowed(RoleConstants.ORGANIZATION_ADMIN)
+    @PutMapping("/api/organizations/workbench")
+    public ApiResponse<PlatformVOs.OrganizationVO> updateWorkbenchOrganization(
+        @Valid @RequestBody PlatformRequests.OrganizationProfileUpdateRequest request
+    ) {
+        return ApiResponse.success("组织信息已更新", organizationService.updateWorkbenchOrganization(request));
+    }
+
+    @RoleAllowed(RoleConstants.ORGANIZATION_ADMIN)
+    @PostMapping("/api/organizations/workbench/avatar")
+    public ApiResponse<PlatformVOs.OrganizationVO> updateWorkbenchOrganizationAvatar(@RequestPart("file") MultipartFile file) {
+        return ApiResponse.success("组织头像已更新", organizationService.updateWorkbenchOrganizationAvatar(file));
     }
 
     @RoleAllowed(RoleConstants.ORGANIZATION_ADMIN)

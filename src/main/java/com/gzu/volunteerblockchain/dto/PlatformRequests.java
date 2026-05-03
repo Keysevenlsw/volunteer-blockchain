@@ -21,7 +21,8 @@ public final class PlatformRequests {
         @NotNull(message = "请选择组织")
         private Integer organizationId;
 
-        @Size(max = 500, message = "申请说明不能超过 500 字")
+        @NotBlank(message = "申请说明不能为空")
+        @Size(max = 50, message = "申请说明不能超过 50 字")
         private String applyReason;
     }
 
@@ -33,6 +34,17 @@ public final class PlatformRequests {
 
         @Size(max = 500, message = "审核备注不能超过 500 字")
         private String reviewNote;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class OrganizationProfileUpdateRequest {
+        @NotBlank(message = "组织名称不能为空")
+        @Size(max = 255, message = "组织名称不能超过 255 字")
+        private String organizationName;
+
+        @Size(max = 5000, message = "组织简介不能超过 5000 字")
+        private String organizationDescription;
     }
 
     @Data

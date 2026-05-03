@@ -6,7 +6,6 @@
           <div class="page-title-row">
             <div>
               <h1>积分商城</h1>
-              <p>登录志愿者账号后可使用公益积分兑换。</p>
             </div>
             <div class="page-actions">
               <el-button @click="router.push('/activities')">志愿活动</el-button>
@@ -16,21 +15,31 @@
 
           <div v-if="productLoading" class="portal-loading">正在加载积分商品...</div>
           <div v-else class="product-grid">
-            <article v-for="product in products" :key="product.productId" class="product-card">
-              <div class="product-cover">
+            <article v-for="product in displayProducts" :key="product.productId" class="product-card">
+              <div class="product-cover" :class="`product-cover--${product.coverTone || 'rose'}`">
                 <img v-if="product.imagePath" :src="resolveImage(product.imagePath)" :alt="product.productName" />
-                <span v-else>积分商品</span>
+                <span v-else>{{ product.coverMark || '礼' }}</span>
               </div>
               <div class="product-body">
-                <StatusBadge :label="`${product.price} 积分`" tone="primary" />
-                <h2>{{ product.productName }}</h2>
-                <p>{{ product.productDescription || '暂无商品说明' }}</p>
-                <el-button v-if="isVolunteer" type="primary" :disabled="product.stock <= 0" @click="handleRedeem(product)">立即兑换</el-button>
-                <el-button v-else type="primary" plain @click="redirectToLogin('volunteer')">登录后兑换</el-button>
+                <div class="product-line">
+                  <StatusBadge :label="`${product.price} 积分`" tone="primary" />
+                  <span>{{ product.stock > 0 ? `库存 ${product.stock}` : '已兑完' }}</span>
+                </div>
+                <h2 :title="product.productName">{{ product.productName }}</h2>
+                <p :title="product.productDescription">{{ product.productDescription }}</p>
+                <el-button
+                  v-if="isVolunteer"
+                  type="primary"
+                  :disabled="product.stock <= 0 || product.isMock"
+                  @click="handleRedeem(product)"
+                >
+                  {{ product.isMock ? '样品' : '立即兑换' }}
+                </el-button>
+                <el-button v-else type="primary" plain @click="redirectToLogin('volunteer')">登录</el-button>
               </div>
             </article>
           </div>
-          <EmptyState v-if="!productLoading && !products.length" mark="兑" title="暂无可兑换商品" description="商品审核通过后会进入统一积分商城。" />
+          <EmptyState v-if="!productLoading && !displayProducts.length" mark="兑" title="暂无商品" description="" />
         </template>
 
         <template v-else>
@@ -227,10 +236,74 @@ const isVolunteer = computed(() => !!getToken() && hasRole('volunteer', user.val
 const isRewardsPanel = computed(() => route.query.panel === 'rewards')
 const pageActiveKey = computed(() => (isRewardsPanel.value ? 'rewards' : 'activities'))
 const visibleActivities = computed(() => activities.value.filter(matchFilters))
+const displayProducts = computed(() => products.value.length ? products.value : mockProducts)
 const pagedVisibleActivities = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   return visibleActivities.value.slice(start, start + pageSize)
 })
+
+const mockProducts = [
+  {
+    productId: 'mock-water-cup',
+    productName: '公益随行杯',
+    productDescription: '轻量便携，红白配色。',
+    price: 120,
+    stock: 18,
+    coverMark: '杯',
+    coverTone: 'rose',
+    isMock: true
+  },
+  {
+    productId: 'mock-canvas-bag',
+    productName: '志愿帆布袋',
+    productDescription: '日常通勤，耐磨大容量。',
+    price: 180,
+    stock: 12,
+    coverMark: '袋',
+    coverTone: 'amber',
+    isMock: true
+  },
+  {
+    productId: 'mock-notebook',
+    productName: '服务记录本',
+    productDescription: '硬壳装订，适合随身记录。',
+    price: 90,
+    stock: 30,
+    coverMark: '本',
+    coverTone: 'blue',
+    isMock: true
+  },
+  {
+    productId: 'mock-umbrella',
+    productName: '晴雨折叠伞',
+    productDescription: '防晒防雨，便于携带。',
+    price: 260,
+    stock: 8,
+    coverMark: '伞',
+    coverTone: 'mint',
+    isMock: true
+  },
+  {
+    productId: 'mock-badge',
+    productName: '链信公益徽章',
+    productDescription: '金属烤漆，纪念收藏。',
+    price: 60,
+    stock: 42,
+    coverMark: '章',
+    coverTone: 'purple',
+    isMock: true
+  },
+  {
+    productId: 'mock-kit',
+    productName: '志愿补给包',
+    productDescription: '收纳袋、手套、湿巾组合。',
+    price: 320,
+    stock: 6,
+    coverMark: '包',
+    coverTone: 'coral',
+    isMock: true
+  }
+]
 
 onMounted(loadPageData)
 
@@ -285,9 +358,9 @@ async function loadActivities() {
 async function loadProducts() {
   productLoading.value = true
   try {
-    products.value = isVolunteer.value ? await getVolunteerProducts() : []
+    products.value = isVolunteer.value ? await getVolunteerProducts() : mockProducts
   } catch (error) {
-    products.value = []
+    products.value = mockProducts
   } finally {
     productLoading.value = false
   }
@@ -726,7 +799,7 @@ function resolveImage(path) {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 .pagination-row {
@@ -741,16 +814,48 @@ function resolveImage(path) {
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 14px 30px rgba(161, 43, 61, 0.07);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 38px rgba(161, 43, 61, 0.12);
 }
 
 .product-cover {
-  height: 150px;
+  height: 168px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #fff0d8, #fff7f7);
-  color: #df001b;
-  font-size: 24px;
+  background: linear-gradient(135deg, #ffe1e5, #fff7f7);
+  color: rgba(223, 0, 27, 0.9);
+  font-family: "STZhongsong", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: 46px;
   font-weight: 700;
+}
+
+.product-cover--amber {
+  background: linear-gradient(135deg, #fff0d2, #fff8ed);
+  color: #b46a00;
+}
+
+.product-cover--blue {
+  background: linear-gradient(135deg, #dff3ff, #f7fbff);
+  color: #2676a8;
+}
+
+.product-cover--mint {
+  background: linear-gradient(135deg, #ddf5ec, #f7fffb);
+  color: #247456;
+}
+
+.product-cover--purple {
+  background: linear-gradient(135deg, #eee5ff, #fbf8ff);
+  color: #6d55a8;
+}
+
+.product-cover--coral {
+  background: linear-gradient(135deg, #ffe1d8, #fff7f4);
+  color: #bc4a2c;
 }
 
 .product-cover img {
@@ -761,13 +866,53 @@ function resolveImage(path) {
 
 .product-body {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   padding: 18px;
 }
 
 .product-body h2,
 .product-body p {
   margin: 0;
+}
+
+.product-body h2 {
+  min-height: 30px;
+  overflow: hidden;
+  color: #171717;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-body p {
+  min-height: 44px;
+  display: -webkit-box;
+  overflow: hidden;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-line span:last-child {
+  color: #888;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.product-body :deep(.el-button) {
+  width: 100%;
+  margin-top: 2px;
 }
 
 @media (max-width: 1180px) {

@@ -51,8 +51,8 @@
               </div>
             </div>
 
-            <p :title="org.organizationDescription || '该组织已参与平台志愿服务认证。'">
-              {{ org.organizationDescription || '该组织已参与平台志愿服务认证。' }}
+            <p :title="plainDescription(org.organizationDescription) || '该组织已参与平台志愿服务认证。'">
+              {{ plainDescription(org.organizationDescription) || '该组织已参与平台志愿服务认证。' }}
             </p>
 
             <div class="org-metrics">
@@ -160,6 +160,14 @@ function resolveImage(path) {
   }
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   return path.startsWith('/') ? `${baseUrl}${path}` : `${baseUrl}/${path}`
+}
+
+function plainDescription(value) {
+  return String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 </script>
 

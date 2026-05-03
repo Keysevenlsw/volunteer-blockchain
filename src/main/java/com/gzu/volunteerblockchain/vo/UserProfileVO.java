@@ -17,5 +17,7 @@ public class UserProfileVO {
     private List<String> permissions;
     private Integer organizationId;
     private String organizationName;
+    private String avatarPath;
+    private String joinDate;
     private Integer totalPoints;
 }
